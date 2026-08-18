@@ -28,7 +28,7 @@ jobs:
 
       - name: Run Validation Checks on ESP32-C6 YAML
         run: |
-          esphome config esp32-c6-elt-12k.yaml'
+          esphome config esp32-c6-elt-12k.yaml
       - name: Run Validation Checks on ESP32-S3 YAML
         run: |
-          esphome config esp32-s3-elt-12k.yaml'
+          esphome config esp32-s3-elt-12k.yaml
