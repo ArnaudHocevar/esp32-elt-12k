@@ -25,6 +25,9 @@ web_server:
     - id: grid_power
       name: Grid power
       sorting_weight: 7.0
+    - id: wireless_info
+      name: Wifi details
+      sorting_weight: 8.0
 
 mdns:
   disabled: true

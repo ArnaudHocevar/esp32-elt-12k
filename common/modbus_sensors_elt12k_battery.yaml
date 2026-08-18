@@ -138,7 +138,6 @@ number:
     unit_of_measurement: "%"
     device_class: battery
     step: 0.1
-    mode: BOX
     min_value: 10.0
     max_value: 100.0
     icon: mdi:battery-charging-high
@@ -157,7 +156,6 @@ number:
     unit_of_measurement: "%"
     device_class: battery
     step: 0.1
-    mode: BOX
     min_value: 10.0
     max_value: 100.0
     icon: mdi:battery-charging-low
