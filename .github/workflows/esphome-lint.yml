@@ -28,7 +28,7 @@ jobs:
       - name: Prepare secrets file from template
         run: |
           echo "=== Generating secrets.yaml from template ==="
-          cp common/secrets.yaml.template common/secrets.yaml
+          cp secrets.yaml.template secrets.yaml
 
       - name: Run Validation Checks on ESP32-C6 YAML
         run: |
