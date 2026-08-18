@@ -5,6 +5,8 @@ packages:
   - !include wireless.yaml
   - !include modbus_controller.yaml
   - !include modbus_sensors_elt12k_info.yaml
+  - !include modbus_sensors_elt12k_battery.yaml
+  - !include modbus_sensors_elt12k_power.yaml
 
 esphome:
   name: esp32-elt-12k

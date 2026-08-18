@@ -1,0 +1,164 @@
+---
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40104
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_bus_voltage"
+    unit_of_measurement: "V"
+    device_class: voltage
+    accuracy_decimals: 1
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_V});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40114
+    register_type: holding
+    value_type: S_WORD
+    name: "battery_bus_current"
+    unit_of_measurement: "A"
+    device_class: current
+    accuracy_decimals: 1
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_A});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40117
+    register_type: holding
+    value_type: S_WORD
+    name: "battery_power"
+    unit_of_measurement: "W"
+    device_class: power
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40134
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_voltage"
+    unit_of_measurement: "V"
+    device_class: voltage
+    accuracy_decimals: 1
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_V});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40135
+    register_type: holding
+    value_type: S_WORD
+    name: "active_power_l1"
+    unit_of_measurement: "W"
+    device_class: power
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40136
+    register_type: holding
+    value_type: S_WORD
+    name: "active_power_l2"
+    unit_of_measurement: "W"
+    device_class: power
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40137
+    register_type: holding
+    value_type: S_WORD
+    name: "active_power_l3"
+    unit_of_measurement: "W"
+    device_class: power
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40138
+    register_type: holding
+    value_type: S_WORD
+    name: "reactive_power_l1"
+    unit_of_measurement: "Var"
+    device_class: reactive_power
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40139
+    register_type: holding
+    value_type: S_WORD
+    name: "reactive_power_l2"
+    unit_of_measurement: "Var"
+    device_class: reactive_power
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40140
+    register_type: holding
+    value_type: S_WORD
+    name: "reactive_power_l3"
+    unit_of_measurement: "Var"
+    device_class: reactive_power
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40146
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_charge_daily"
+    unit_of_measurement: "kWh"
+    device_class: energy
+    accuracy_decimals: 2
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_Energy});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40147
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_discharge_daily"
+    unit_of_measurement: "kWh"
+    device_class: energy
+    accuracy_decimals: 2
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_Energy});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40148
+    register_type: holding
+    value_type: U_WORD
+    register_count: 2
+    name: "battery_charge_total"
+    unit_of_measurement: "kWh"
+    device_class: energy
+    accuracy_decimals: 2
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_Energy});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40150
+    register_type: holding
+    value_type: U_WORD
+    register_count: 2
+    name: "battery_discharge_total"
+    unit_of_measurement: "kWh"
+    device_class: energy
+    accuracy_decimals: 2
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_Energy});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40153
+    register_type: holding
+    value_type: S_WORD
+    name: "grid_power_l1"
+    unit_of_measurement: "W"
+    device_class: power
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40154
+    register_type: holding
+    value_type: S_WORD
+    name: "grid_power_l2"
+    unit_of_measurement: "W"
+    device_class: power
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40155
+    register_type: holding
+    value_type: S_WORD
+    name: "grid_power_l3"
+    unit_of_measurement: "W"
+    device_class: power
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"

@@ -17,6 +17,11 @@ modbus_controller:
         - binary_sensor.template.publish:
             id: modbus_cx_status
             state: OFF
+    on_command_sent:
+      then:
+        - number.increment:
+            id: modbus_command_count
+            cycle: true
 
 binary_sensor:
   - id: modbus_cx_status
@@ -24,3 +29,13 @@ binary_sensor:
     name: modbus_connection_status
     icon: mdi:server-network
     device_class: connectivity
+
+number:
+  - id: modbus_command_count
+    platform: template
+    name: modbus_command_count
+    icon: mdi:server-network
+    optimistic: true
+    min_value: 0
+    max_value: 1000000000
+    step: 1

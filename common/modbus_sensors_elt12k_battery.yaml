@@ -1,0 +1,207 @@
+---
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40073
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_capacity"
+    unit_of_measurement: "kWh"
+    device_class: energy
+    icon: mdi:battery
+    accuracy_decimals: 2
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_WHRtg});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40074
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_max_charge_rate"
+    unit_of_measurement: "W"
+    device_class: power
+    icon: mdi:battery-arrow-up
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40075
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_max_discharge_rate"
+    unit_of_measurement: "W"
+    device_class: power
+    icon: mdi:battery-arrow-down
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40077
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_manufacturer_max_charge_state"
+    unit_of_measurement: "%"
+    device_class: battery
+    accuracy_decimals: 1
+    icon: mdi:battery-charging-high
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_SoC});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40078
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_manufacturer_min_charge_state"
+    unit_of_measurement: "%"
+    device_class: battery
+    accuracy_decimals: 1
+    icon: mdi:battery-charging-low
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_SoC});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40081
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_charge"
+    unit_of_measurement: "%"
+    device_class: battery
+    accuracy_decimals: 1
+    icon: mdi:battery-charging-medium
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_SoC});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40083
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_max_charge"
+    unit_of_measurement: "%"
+    device_class: battery
+    icon: mdi:battery-charging-high
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_SoH});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    id: raw_battery_charge_status
+    address: 40086
+    register_type: holding
+    value_type: U_WORD
+    internal: true
+    on_value:
+      then:
+        - text_sensor.template.publish:
+            id: battery_charge_status_enum
+            state: !lambda |-
+              switch ((int) x) {
+                case 1: return std::string("Off");
+                case 2: return std::string("Empty");
+                case 3: return std::string("Discharging");
+                case 4: return std::string("Charging");
+                case 5: return std::string("Full");
+                case 6: return std::string("Holding");
+                case 7: return std::string("Testing");
+                default: return std::string("Unknown Status");
+              }
+
+text_sensor:
+  - platform: template
+    id: battery_charge_status_enum
+    name: "battery_charge_status"
+    icon: mdi:battery-sync
+
+# Configurables
+number:
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40079
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_charge_limit"
+    unit_of_measurement: "%"
+    device_class: battery
+    step: 0.1
+    mode: BOX
+    min_value: 10.0
+    max_value: 100.0
+    icon: mdi:battery-charging-high
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    # Careful, values are inverted due to negative exponent
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_SoC});"
+    write_lambda: "return x / pow(10.0, ${SCALING_FACTOR_SoC});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40080
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_discharge_limit"
+    unit_of_measurement: "%"
+    device_class: battery
+    step: 0.1
+    mode: BOX
+    min_value: 10.0
+    max_value: 100.0
+    icon: mdi:battery-charging-low
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    # Careful, values are inverted due to negative exponent
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_SoC});"
+    write_lambda: "return x / pow(10.0, ${SCALING_FACTOR_SoC});"
+
+# States
+binary_sensor:
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "battery_event_communication_error"
+    register_type: holding
+    address: 40097  # low bits 0-15
+    bitmask: 0x0001  # documentation says bit 0
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "battery_event_over_temp_alarm"
+    register_type: holding
+    address: 40097  # low bits 0-15
+    bitmask: 0x0002  # documentation says bit 1
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "battery_event_under_temp_alarm"
+    register_type: holding
+    address: 40097  # low bits 0-15
+    bitmask: 0x0008  # documentation says bit 3
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "battery_event_over_charge_current_alarm"
+    register_type: holding
+    address: 40097  # low bits 0-15
+    bitmask: 0x0020  # documentation says bit 5
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "battery_event_over_discharge_current_alarm"
+    register_type: holding
+    address: 40097  # low bits 0-15
+    bitmask: 0x0080  # documentation says bit 7
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "battery_event_over_voltage_alarm"
+    register_type: holding
+    address: 40097  # low bits 0-15
+    bitmask: 0x0200  # documentation says bit 9
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "battery_event_under_voltage_alarm"
+    register_type: holding
+    address: 40097  # low bits 0-15
+    bitmask: 0x0800  # documentation says bit 11
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "battery_event_ground_fault"
+    register_type: holding
+    address: 40096  # high bits 16-31
+    bitmask: 0x040  # documentation says bit 22, translated to 6
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}

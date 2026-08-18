@@ -4,3 +4,12 @@ substitutions:
   MODBUS_SEND_DELAY: 100ms
   MODBUS_TICK_INTERVAL: 10000ms
   MODBUS_SKIP_TICKS_IMMUTABLE: 359  # Collect static data every 360 ticks (1 hour)
+  MODBUS_SKIP_TICKS_SLOW: 5  # Collect slow-varying data every 6 ticks (1 min)
+  SCALING_FACTOR_WHRtg: -2
+  SCALING_FACTOR_W: 0
+  SCALING_FACTOR_SoC: -1
+  SCALING_FACTOR_SoH: 0
+  SCALING_FACTOR_V: -1
+  SCALING_FACTOR_A: -1
+  SCALING_FACTOR_Energy: -2
+  SCALING_FACTOR_Temp: -1
