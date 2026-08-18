@@ -6,12 +6,14 @@ on:
     branches:
       - main
     paths:
-      - '*.yaml'
+      - 'esp32-c6-elt-12k.yaml'
+      - 'esp32-s3-elt-12k.yaml'
   pull_request:
     branches:
       - main
     paths:
-      - '*.yaml'
+      - 'esp32-c6-elt-12k.yaml'
+      - 'esp32-s3-elt-12k.yaml'
 
 jobs:
   validate-config:
