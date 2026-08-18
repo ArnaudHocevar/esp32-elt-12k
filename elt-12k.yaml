@@ -1,6 +1,6 @@
 esphome:
-  name: elt-12k
-  friendly_name: ELT-12K PCS
+  name: esp32-elt-12k
+  friendly_name: ESP32 ELT-12K PCS controller
 
 esp32:
   # ESP32-C6-WROOM-1 uses the ESP32-C6 chip; esp32-c6-devkitc-1 is the closest
@@ -15,7 +15,7 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
   ap:
-    ssid: "ELT-12K Fallback"
+    ssid: "ESP32 ELT-12K Fallback"
     password: !secret ap_password
 
 captive_portal:
@@ -47,3 +47,421 @@ modbus:
   id: modbus_bus
   uart_id: modbus_uart
   flow_control_pin: GPIO21
+  role: client
+  send_wait_time: 100ms
+  
+modbus_controller:
+  - id: elt12k_inverter
+    address: 1            # Slave target address
+    modbus_id: modbus_bus
+    setup_priority: -10
+    update_interval: 30s                 # Increased slightly to give the bus breathing room
+    command_throttle: 300ms
+    # Triggers that track live RS485 communication stability
+    on_online:
+      then:
+        - binary_sensor.template.publish:
+            id: modbus_status
+            state: ON
+    on_offline:
+      then:
+        - binary_sensor.template.publish:
+            id: modbus_status
+            state: OFF
+
+binary_sensor:
+  - platform: template
+    name: "ELT12K Modbus Connection"
+    id: modbus_status
+    device_class: connectivity # Shows as "Connected" / "Disconnected" in HA
+    # Initializes to ON assuming success, on_offline corrects it if polling fails
+    lambda: 'return true;'
+
+sensor:
+  # WHRtg | uint16 | 1 byte | WHRtg_SF(*0.01) | kwH | Energy Capacity
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40073
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_capacity"
+    unit_of_measurement: "kWh"
+    device_class: energy
+    accuracy_decimals: 2
+    lambda: "return x / 100.0;"
+    # Max Charge Rate | uint16 | 1 byte | W_SF(*1) | W | Maximum rate of energy transfer into the storage device in DC watts.
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40074
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_max_charge_rate"
+    unit_of_measurement: "W"
+    device_class: power
+    skip_updates: ${skip_updates_references}
+    # Max Discharge Rate | uint16 | 1 byte | W_SF(*1) | W | Maximum rate of energy transfer out of the storage device in DC watts.
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40075
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_max_discharge_rate"
+    unit_of_measurement: "W"
+    device_class: power
+    skip_updates: ${skip_updates_references}
+    # SoCMax | uint16 | 1 byte | SoC_SF(*0.1) | % | Manufacturer maximum state of charge, expressed as a percentage.
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40077
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_manufacturer_max_charge_state"
+    unit_of_measurement: "%"
+    device_class: battery
+    skip_updates: ${skip_updates_references}
+    accuracy_decimals: 1
+    lambda: "return x / ${scaling_factor_battery_charge};"
+    # SoCMin | uint16 | 1 byte | SoC_SF(*0.1) | % | Manufacturer minimum state of charge, expressed as a percentage.
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40078
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_manufacturer_min_charge_state"
+    unit_of_measurement: "%"
+    device_class: battery
+    skip_updates: ${skip_updates_references}
+    accuracy_decimals: 1
+    lambda: "return x / ${scaling_factor_battery_charge};"
+    # SoC | uint16 | 1 byte | SoC_SF(*0.1) | % | State of charge, expressed as a percentage.
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40081
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_charge"
+    unit_of_measurement: "%"
+    device_class: battery
+    accuracy_decimals: 1
+    lambda: "return x / ${scaling_factor_battery_charge};"
+    # SoH | uint16 | 1 byte | SoH_SF(*1) | % | Percentage of battery life remaining.
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40083
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_max_charge"
+    unit_of_measurement: "%"
+    device_class: battery
+    # DC_Bus_Voltage(Battery) | uint16 | 1 byte | V_SF(*0.1) | V | DC Bus Voltage
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40104
+    register_type: holding
+    value_type: U_WORD
+    name: "Bus voltage"
+    unit_of_measurement: "V"
+    device_class: voltage
+    accuracy_decimals: 1
+    lambda: "return x / 10.0;"
+    # DC_current | int16 | 1 byte | A_SF(*0.1) | A | Total DC current flowing to/from the battery bank.(+:in. -out)
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40114
+    register_type: holding
+    value_type: S_WORD
+    name: "Bus current"
+    unit_of_measurement: "A"
+    device_class: current
+    accuracy_decimals: 1
+    lambda: "return x / 10.0;"
+    # Battery Power | int16 | 1 byte | W_SF(*1) | W | Total power flowing to/from the battery bank.(+:discharge. -:charge)
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40117
+    register_type: holding
+    value_type: S_WORD
+    name: "Battery power"
+    unit_of_measurement: "W"
+    device_class: power
+    accuracy_decimals: 1
+    lambda: "return x / 10.0;"
+    # Battery Voltage | uint16 | 1 byte | V_SF(*0.1) | V | Total power flowing to/from the battery bank.(+:discharge. -:charge)
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40134
+    register_type: holding
+    value_type: U_WORD
+    name: "Battery voltage"
+    unit_of_measurement: "V"
+    device_class: voltage
+    accuracy_decimals: 1
+    lambda: "return x / 10.0;"
+    # Active_Power_A | int16 | 1 byte | W_SF(*1) | W | A-phase active power (+:discharge. -:charge)
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40135
+    register_type: holding
+    value_type: S_WORD
+    name: "L1 power"
+    unit_of_measurement: "W"
+    device_class: power
+    # Active_Power_B | int16 | 1 byte | W_SF(*1) | W | B-phase active power (+:discharge. -:charge)
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40136
+    register_type: holding
+    value_type: S_WORD
+    name: "L2 power"
+    unit_of_measurement: "W"
+    device_class: power
+    # Active_Power_C | int16 | 1 byte | W_SF(*1) | W | C-phase active power (+:discharge. -:charge)
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40137
+    register_type: holding
+    value_type: S_WORD
+    name: "L3 power"
+    unit_of_measurement: "W"
+    device_class: power
+    # Reactive_Power_A | int16 | 1 byte | W_SF(*1) | Var | A-phase reactive power
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40138
+    register_type: holding
+    value_type: S_WORD
+    name: "L1 reactive power"
+    unit_of_measurement: "Var"
+    device_class: reactive_power
+    # Reactive_Power_B | int16 | 1 byte | W_SF(*1) | Var | B-phase reactive power
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40139
+    register_type: holding
+    value_type: S_WORD
+    name: "L2 reactive power"
+    unit_of_measurement: "Var"
+    device_class: reactive_power
+    # Reactive_Power_C | int16 | 1 byte | W_SF(*1) | Var | C-phase reactive power
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40140
+    register_type: holding
+    value_type: S_WORD
+    name: "L3 reactive power"
+    unit_of_measurement: "Var"
+    device_class: reactive_power
+    # Daily_Charge_Energy | uint16 | 1 byte | Energy_SF(*0.01) | kWh | 
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40146
+    register_type: holding
+    value_type: U_WORD
+    name: "Daily charge"
+    unit_of_measurement: "kWh"
+    device_class: energy
+    accuracy_decimals: 2
+    lambda: "return x / 100.0;"
+    # Daily_Discharge_Energy | uint16 | 1 byte | Energy_SF(*0.01) | kWh | 
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40147
+    register_type: holding
+    value_type: U_WORD
+    name: "Daily discharge"
+    unit_of_measurement: "kWh"
+    device_class: energy
+    accuracy_decimals: 2
+    lambda: "return x / 100.0;"
+    # Charge_Energy | uint32 | 2 bytes | Energy_SF(*0.01) | kWh | 
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40148
+    register_type: holding
+    value_type: U_WORD
+    register_count: 2
+    name: "Total charge energy"
+    unit_of_measurement: "kWh"
+    device_class: energy
+    accuracy_decimals: 2
+    lambda: "return x / 100.0;"
+    # Discharge_Energy | uint32 | 2 bytes | Energy_SF(*0.01) | kWh |
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40150
+    register_type: holding
+    value_type: U_WORD
+    register_count: 2
+    name: "Total discharge energy"
+    unit_of_measurement: "kWh"
+    device_class: energy
+    accuracy_decimals: 2
+    lambda: "return x / 100.0;"
+    # Grid_Power_A | int16 | 1 byte | W_SF(*1) | W | A-phase grid side power (+:Grid discharge. -:Grid countercurrent)
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40153
+    register_type: holding
+    value_type: S_WORD
+    name: "L1 grid power"
+    unit_of_measurement: "W"
+    device_class: power
+    # Grid_Power_B | int16 | 1 byte | W_SF(*1) | W | B-phase grid side power (+:Grid discharge. -:Grid countercurrent)
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40154
+    register_type: holding
+    value_type: S_WORD
+    name: "L2 grid power"
+    unit_of_measurement: "W"
+    device_class: power
+    # Grid_Power_C | int16 | 1 byte | W_SF(*1) | W | C-phase grid side power (+:Grid discharge. -:Grid countercurrent)
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40155
+    register_type: holding
+    value_type: S_WORD
+    name: "L3 grid power"
+    unit_of_measurement: "W"
+    device_class: power
+    # Battery_temp | int16 | 1 byte | Temp_SF(*0.1) | °C | 
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40156
+    register_type: holding
+    value_type: S_WORD
+    name: "Battery temp"
+    unit_of_measurement: "C"
+    device_class: temperature
+    accuracy_decimals: 1
+    lambda: "return x / 10.0;"
+    # PCS_temp | int16 | 1 byte | Temp_SF(*0.1) | °C | 
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40157
+    register_type: holding
+    value_type: S_WORD
+    name: "ELT-12K temp"
+    unit_of_measurement: "C"
+    device_class: temperature
+    accuracy_decimals: 1
+    lambda: "return x / 10.0;"
+
+number:
+  # SoCRsvMax | uint16 | 1 byte | SoC_SF(*0.1) | % | Setpoint for maximum reserve for storage as a percentage of the nominal maximum storage.
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40079
+    register_type: holding
+    value_type: U_WORD
+    name: "Reserved max state of charge"
+    unit_of_measurement: "%"
+    device_class: battery
+    step: 0.1
+    mode: BOX
+    min_value: 10.0
+    max_value: 100.0
+    lambda: "return x / 10.0;"
+    write_lambda: "return x * 10.0;"
+    # SoCRsvMin | uint16 | 1 byte | SoC_SF(*0.1) | % | Setpoint for minimum reserve for storage as a percentage of the nominal maximum storage.
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    address: 40080
+    register_type: holding
+    value_type: U_WORD
+    name: "Reserved min state of charge"
+    unit_of_measurement: "%"
+    device_class: battery
+    step: 0.1
+    mode: BOX
+    min_value: 10.0
+    max_value: 100.0
+    lambda: "return x / 10.0;"
+    write_lambda: "return x * 10.0;"
+
+text_sensor:
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    name: "Device Manufacturer"
+    address: 40004
+    register_type: holding
+    register_count: 8
+    response_size: 16
+    raw_encode: ANSI
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    name: "Device Model"
+    address: 40020
+    register_type: holding
+    register_count: 8
+    response_size: 16
+    raw_encode: ANSI
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    name: "Device Version"
+    address: 40044
+    register_type: holding
+    register_count: 4
+    response_size: 8
+    raw_encode: ANSI
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    name: "Device S/N"
+    address: 40052
+    register_type: holding
+    register_count: 8
+    response_size: 16
+    raw_encode: ANSI
+    # Charge Status | enum16 | 1 byte |  | enum | Charge status of storage device.
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    name: "Charge status"
+    address: 40086
+    register_type: holding
+    raw_encode: HEXBYTES
+    lambda: |-
+      uint16_t value = modbus::helpers::word_from_hex_str(x, 0);
+        switch (value) {
+          case 1: return std::string("Off");
+          case 2: return std::string("Empty");
+          case 3: return std::string("Discharging");
+          case 4: return std::string("Charging");
+          case 5: return std::string("Full");
+          case 6: return std::string("Holding");
+          case 7: return std::string("Testing");
+          default: return std::string("Unknown Status");
+        }
+    # Battery Event 1 Bitfield | bitfield32 | 2 bytes |  |  | Alarms and warnings. Bit flags.
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_inverter
+    name: "Battery events"
+    address: 40096
+    register_type: holding
+    register_count: 2
+    raw_encode: HEXBYTES
+    lambda: |-
+      // 1. Combine bytes into a 32-bit unsigned integer
+      uint32_t val = modbus::helpers::dword_from_hex_str(x, 0); 
+
+      // Note: If values appear scrambled, flip word order using:
+      // uint32_t val = modbus_controller::dword_from_hex_str_r(x, 0);
+
+      std::string result = "";
+
+      // 2. Map specified bit positions to descriptive text labels
+      if (val & (1ULL << 0))  result += "Communication error, ";
+      if (val & (1ULL << 1))  result += "Alarm: over temp, ";
+      if (val & (1ULL << 3))  result += "Alarn: under temp, ";
+      if (val & (1ULL << 5))  result += "Alarm: over charge, ";
+      if (val & (1ULL << 7))  result += "Alarm: over discharge, ";
+      if (val & (1ULL << 9))  result += "Alarm: over voltage, ";
+      if (val & (1ULL << 11)) result += "Alarm: under voltage, ";
+      if (val & (1ULL << 22)) result += "Alarm: ground fault, ";
+
+      // 3. Format string outcome
+      if (!result.empty()) {
+        result = result.substr(0, result.size() - 2); // Remove trailing comma and space
+        return result;
+      }
+
+      return std::string("No battery events");
