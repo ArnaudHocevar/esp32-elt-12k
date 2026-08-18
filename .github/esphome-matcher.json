@@ -1,15 +1,19 @@
 {
   "problemMatcher": [
     {
-      "owner": "esphome-linter",
+      "owner": "esphome-config-validator",
       "pattern": [
         {
-          "regexp": "^(.*?):(\\d+):(\\d+):\\s+(error|warning):\\s+(.*)$",
-          "file": 1,
-          "line": 2,
-          "column": 3,
-          "severity": 4,
-          "message": 5
+          "regexp": "=== In file '(.*)':",
+          "file": 1
+        },
+        {
+          "regexp": "Failed config",
+          "line": 1
+        },
+        {
+          "regexp": "^\\s*(.*?):\\s*(.*)$",
+          "message": 2
         }
       ]
     }
