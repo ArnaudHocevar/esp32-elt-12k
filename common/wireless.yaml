@@ -7,3 +7,25 @@ wifi:
     password: ${ap_wifi_password}
 
 captive_portal:
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "IP Address"
+      web_server:
+        sorting_group_id: wireless_info
+    mac_address:
+      name: "MAC Address"
+      web_server:
+        sorting_group_id: wireless_info
+    ssid:
+      name: "Current SSID"
+      web_server:
+        sorting_group_id: wireless_info
+
+sensor:
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: 30s
+    web_server:
+      sorting_group_id: wireless_info

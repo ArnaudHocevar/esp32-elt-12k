@@ -19,9 +19,9 @@ modbus_controller:
             state: OFF
     on_command_sent:
       then:
-        - number.increment:
-            id: modbus_command_count
-            cycle: true
+        - lambda: |-
+            id(modbus_counter_raw)++;
+            id(modbus_command_count).publish_state(id(modbus_counter_raw));
 
 binary_sensor:
   - id: modbus_cx_status
@@ -32,14 +32,18 @@ binary_sensor:
     web_server:
       sorting_group_id: alerts
 
-number:
+globals:
+  - id: modbus_counter_raw
+    type: uint32_t
+    restore_value: false  # Do not persist across reboots
+    initial_value: '0'
+
+sensor:
   - id: modbus_command_count
     platform: template
     name: modbus_command_count
     icon: mdi:server-network
-    optimistic: true
-    min_value: 0
-    max_value: 1000000000
-    step: 1
+    accuracy_decimals: 0
+    state_class: total_increasing
     web_server:
       sorting_group_id: sys_health
