@@ -1,0 +1,23 @@
+---
+packages:
+  - !include base_config.yaml
+  - !include modbus_uart.yaml
+  - !include wireless.yaml
+  - !include modbus_controller.yaml
+  - !include modbus_sensors_elt12k_info.yaml
+
+esphome:
+  name: esp32-elt-12k
+  friendly_name: ESP32 ELT-12K PCS controller
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password

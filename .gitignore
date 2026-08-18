@@ -1,2 +1,3 @@
-secrets.yaml
+# TODO find a way to upload template rather than default values
+# secrets.yaml
 .esphome/

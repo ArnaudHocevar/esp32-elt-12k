@@ -1,0 +1,49 @@
+---
+text_sensor:
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "device_info_manufacturer"
+    address: 40004
+    register_type: holding
+    register_count: 8
+    response_size: 16
+    raw_encode: ANSI
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "device_info_model"
+    address: 40020
+    register_type: holding
+    register_count: 8
+    response_size: 16
+    raw_encode: ANSI
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    # Not interested in the data, but this allows issuing a single modbus command
+    name: "Dummy padding #1"
+    address: 40036
+    internal: true
+    disabled_by_default: false
+    register_type: holding
+    register_count: 4
+    response_size: 8
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "device_info_sw_version"
+    address: 40044
+    register_type: holding
+    register_count: 4
+    response_size: 8
+    raw_encode: ANSI
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "device_info_serial_number"
+    address: 40052
+    register_type: holding
+    register_count: 8
+    response_size: 16
+    raw_encode: ANSI
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}

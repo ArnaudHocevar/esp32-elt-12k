@@ -5,7 +5,13 @@
     {
       "chipFamily": "ESP32-C6",
       "parts": [
-        { "path": "binaries/esp32c6-elt12k.bin", "offset": 0 }
+        { "path": "binaries/esp32-c6-elt-12k.bin", "offset": 0 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-S3",
+      "parts": [
+        { "path": "binaries/esp32-s3-elt-12k.bin", "offset": 0 }
       ]
     }
   ]

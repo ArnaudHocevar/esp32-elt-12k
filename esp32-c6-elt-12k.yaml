@@ -1,0 +1,4 @@
+---
+packages:
+  - !include common/device_esp32-c6.yaml
+  - !include common/base_package.yaml

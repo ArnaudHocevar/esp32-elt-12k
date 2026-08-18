@@ -20,7 +20,7 @@ jobs:
       image: python:3.11-slim
     steps:
       - name: Checkout Code Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install ESPHome Validator Engine
         run: |

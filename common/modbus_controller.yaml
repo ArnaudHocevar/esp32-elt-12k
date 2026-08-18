@@ -1,0 +1,26 @@
+---
+modbus_controller:
+  - id: elt12k_modbus
+    address: 1            # Slave target address
+    modbus_id: modbus_bus
+    setup_priority: -10
+    update_interval: ${MODBUS_TICK_INTERVAL}  # Tick interval for collection
+    command_throttle: 300ms
+    # Triggers that track live RS485 communication stability
+    on_online:
+      then:
+        - binary_sensor.template.publish:
+            id: modbus_cx_status
+            state: ON
+    on_offline:
+      then:
+        - binary_sensor.template.publish:
+            id: modbus_cx_status
+            state: OFF
+
+binary_sensor:
+  - id: modbus_cx_status
+    platform: template
+    name: modbus_connection_status
+    icon: mdi:server-network
+    device_class: connectivity
