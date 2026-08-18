@@ -51,10 +51,10 @@ Either clone the project and copy to ESPHome, or use the one-click installation 
 ## Development roadmap
 - [X] Collect data from Modbus
 - [X] Implement one-click installation
-- [ ] Waveshare S3 target
-- [ ] Implement cleaner handling of enumeration and bitmasks
+- [X] Waveshare S3 target
+- [X] Implement cleaner handling of enumeration and bitmasks
 - [ ] Support for dynamic exponent detection
-- [ ] Multi-speed polling
+- [X] Multi-speed polling
 - [ ] Support for custom modes (self-consumption, peak-shaving, etc.)
 - [ ] Simple reporting UI
 - [ ] MQTT support

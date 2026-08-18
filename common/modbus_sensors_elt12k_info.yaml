@@ -9,6 +9,8 @@ text_sensor:
     response_size: 16
     raw_encode: ANSI
     skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    web_server:
+      sorting_group_id: sys_info
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     name: "system_info_model"
@@ -18,6 +20,8 @@ text_sensor:
     response_size: 16
     raw_encode: ANSI
     skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    web_server:
+      sorting_group_id: sys_info
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     name: "system_info_sw_version"
@@ -27,6 +31,8 @@ text_sensor:
     response_size: 8
     raw_encode: ANSI
     skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    web_server:
+      sorting_group_id: sys_info
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     name: "system_info_serial_number"
@@ -36,6 +42,8 @@ text_sensor:
     response_size: 16
     raw_encode: ANSI
     skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    web_server:
+      sorting_group_id: sys_info
 sensor:
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
@@ -44,6 +52,8 @@ sensor:
     value_type: U_WORD
     name: "system_heartbeat"
     icon: mdi:heart-pulse
+    web_server:
+      sorting_group_id: sys_health
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40156
@@ -56,6 +66,8 @@ sensor:
     accuracy_decimals: 1
     skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_Temp});"
+    web_server:
+      sorting_group_id: sys_health
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40157
@@ -68,3 +80,5 @@ sensor:
     accuracy_decimals: 1
     skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_Temp});"
+    web_server:
+      sorting_group_id: sys_health

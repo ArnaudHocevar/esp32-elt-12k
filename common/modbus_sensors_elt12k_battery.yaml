@@ -12,6 +12,8 @@ sensor:
     accuracy_decimals: 2
     skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_WHRtg});"
+    web_server:
+      sorting_group_id: battery_info
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40074
@@ -23,6 +25,8 @@ sensor:
     icon: mdi:battery-arrow-up
     skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+    web_server:
+      sorting_group_id: battery_info
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40075
@@ -34,6 +38,8 @@ sensor:
     icon: mdi:battery-arrow-down
     skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+    web_server:
+      sorting_group_id: battery_info
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40077
@@ -46,6 +52,8 @@ sensor:
     icon: mdi:battery-charging-high
     skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_SoC});"
+    web_server:
+      sorting_group_id: battery_info
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40078
@@ -58,6 +66,8 @@ sensor:
     icon: mdi:battery-charging-low
     skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_SoC});"
+    web_server:
+      sorting_group_id: battery_info
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40081
@@ -70,6 +80,8 @@ sensor:
     icon: mdi:battery-charging-medium
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_SoC});"
+    web_server:
+      sorting_group_id: battery_info
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40083
@@ -81,6 +93,8 @@ sensor:
     icon: mdi:battery-charging-high
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_SoH});"
+    web_server:
+      sorting_group_id: battery_info
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     id: raw_battery_charge_status
@@ -109,6 +123,9 @@ text_sensor:
     id: battery_charge_status_enum
     name: "battery_charge_status"
     icon: mdi:battery-sync
+    web_server:
+      sorting_group_id: battery_info
+      sorting_weight: 1.0
 
 # Configurables
 number:
@@ -129,6 +146,8 @@ number:
     # Careful, values are inverted due to negative exponent
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_SoC});"
     write_lambda: "return x / pow(10.0, ${SCALING_FACTOR_SoC});"
+    web_server:
+      sorting_group_id: tunables
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40080
@@ -146,6 +165,8 @@ number:
     # Careful, values are inverted due to negative exponent
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_SoC});"
     write_lambda: "return x / pow(10.0, ${SCALING_FACTOR_SoC});"
+    web_server:
+      sorting_group_id: tunables
 
 # States
 binary_sensor:
@@ -156,6 +177,8 @@ binary_sensor:
     address: 40097  # low bits 0-15
     bitmask: 0x0001  # documentation says bit 0
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    web_server:
+      sorting_group_id: alerts
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     name: "battery_event_over_temp_alarm"
@@ -163,6 +186,8 @@ binary_sensor:
     address: 40097  # low bits 0-15
     bitmask: 0x0002  # documentation says bit 1
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    web_server:
+      sorting_group_id: alerts
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     name: "battery_event_under_temp_alarm"
@@ -170,6 +195,8 @@ binary_sensor:
     address: 40097  # low bits 0-15
     bitmask: 0x0008  # documentation says bit 3
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    web_server:
+      sorting_group_id: alerts
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     name: "battery_event_over_charge_current_alarm"
@@ -177,6 +204,8 @@ binary_sensor:
     address: 40097  # low bits 0-15
     bitmask: 0x0020  # documentation says bit 5
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    web_server:
+      sorting_group_id: alerts
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     name: "battery_event_over_discharge_current_alarm"
@@ -184,6 +213,8 @@ binary_sensor:
     address: 40097  # low bits 0-15
     bitmask: 0x0080  # documentation says bit 7
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    web_server:
+      sorting_group_id: alerts
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     name: "battery_event_over_voltage_alarm"
@@ -191,6 +222,8 @@ binary_sensor:
     address: 40097  # low bits 0-15
     bitmask: 0x0200  # documentation says bit 9
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    web_server:
+      sorting_group_id: alerts
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     name: "battery_event_under_voltage_alarm"
@@ -198,6 +231,8 @@ binary_sensor:
     address: 40097  # low bits 0-15
     bitmask: 0x0800  # documentation says bit 11
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    web_server:
+      sorting_group_id: alerts
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     name: "battery_event_ground_fault"
@@ -205,3 +240,5 @@ binary_sensor:
     address: 40096  # high bits 16-31
     bitmask: 0x040  # documentation says bit 22, translated to 6
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    web_server:
+      sorting_group_id: alerts

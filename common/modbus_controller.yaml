@@ -29,6 +29,8 @@ binary_sensor:
     name: modbus_connection_status
     icon: mdi:server-network
     device_class: connectivity
+    web_server:
+      sorting_group_id: alerts
 
 number:
   - id: modbus_command_count
@@ -39,3 +41,5 @@ number:
     min_value: 0
     max_value: 1000000000
     step: 1
+    web_server:
+      sorting_group_id: sys_health

@@ -10,6 +10,8 @@ sensor:
     device_class: voltage
     accuracy_decimals: 1
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_V});"
+    web_server:
+      sorting_group_id: battery_power
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40114
@@ -20,6 +22,8 @@ sensor:
     device_class: current
     accuracy_decimals: 1
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_A});"
+    web_server:
+      sorting_group_id: battery_power
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40117
@@ -29,6 +33,8 @@ sensor:
     unit_of_measurement: "W"
     device_class: power
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+    web_server:
+      sorting_group_id: battery_power
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40134
@@ -39,6 +45,8 @@ sensor:
     device_class: voltage
     accuracy_decimals: 1
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_V});"
+    web_server:
+      sorting_group_id: battery_power
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40135
@@ -48,6 +56,8 @@ sensor:
     unit_of_measurement: "W"
     device_class: power
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+    web_server:
+      sorting_group_id: grid_power
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40136
@@ -57,6 +67,8 @@ sensor:
     unit_of_measurement: "W"
     device_class: power
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+    web_server:
+      sorting_group_id: grid_power
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40137
@@ -66,6 +78,8 @@ sensor:
     unit_of_measurement: "W"
     device_class: power
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+    web_server:
+      sorting_group_id: grid_power
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40138
@@ -75,6 +89,8 @@ sensor:
     unit_of_measurement: "Var"
     device_class: reactive_power
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+    web_server:
+      sorting_group_id: grid_power
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40139
@@ -84,6 +100,8 @@ sensor:
     unit_of_measurement: "Var"
     device_class: reactive_power
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+    web_server:
+      sorting_group_id: grid_power
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40140
@@ -93,6 +111,8 @@ sensor:
     unit_of_measurement: "Var"
     device_class: reactive_power
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+    web_server:
+      sorting_group_id: grid_power
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40146
@@ -103,6 +123,8 @@ sensor:
     device_class: energy
     accuracy_decimals: 2
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_Energy});"
+    web_server:
+      sorting_group_id: battery_power
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40147
@@ -113,6 +135,8 @@ sensor:
     device_class: energy
     accuracy_decimals: 2
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_Energy});"
+    web_server:
+      sorting_group_id: battery_power
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40148
@@ -124,6 +148,8 @@ sensor:
     device_class: energy
     accuracy_decimals: 2
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_Energy});"
+    web_server:
+      sorting_group_id: battery_power
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40150
@@ -135,6 +161,8 @@ sensor:
     device_class: energy
     accuracy_decimals: 2
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_Energy});"
+    web_server:
+      sorting_group_id: battery_power
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40153
@@ -144,6 +172,8 @@ sensor:
     unit_of_measurement: "W"
     device_class: power
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+    web_server:
+      sorting_group_id: grid_power
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40154
@@ -153,6 +183,8 @@ sensor:
     unit_of_measurement: "W"
     device_class: power
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+    web_server:
+      sorting_group_id: grid_power
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     address: 40155
@@ -162,3 +194,5 @@ sensor:
     unit_of_measurement: "W"
     device_class: power
     lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+    web_server:
+      sorting_group_id: grid_power
