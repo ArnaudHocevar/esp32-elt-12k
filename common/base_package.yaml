@@ -7,6 +7,7 @@ packages:
   - !include modbus_sensors_elt12k_info.yaml
   - !include modbus_sensors_elt12k_battery.yaml
   - !include modbus_sensors_elt12k_power.yaml
+  - !include webserver.yaml
 
 esphome:
   name: esp32-elt-12k
@@ -18,8 +19,8 @@ logger:
 # Enable Home Assistant API
 api:
   encryption:
-    key: !secret api_encryption_key
+    key: ${api_key}
 
 ota:
   - platform: esphome
-    password: !secret ota_password
+    password: ${ota_password}
