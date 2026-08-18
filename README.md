@@ -40,8 +40,18 @@ As the ESP32 uses 3.3v and the ELT-12K uses 5V TTL a voltage divider is required
 It is recommended to use a better system than the inexpensive MAX485S, some with optocouplers would be safer in case of surge on one side or the other.
 Also check if your MAX485 already has a 120 Ohm resistor installed (usually labeled R7). If not, it should be added between A and B to avoid signal reflection.
 
+## Installation
+
+Either clone the project and copy to ESPHome, or use the one-click installation link
+
+### 🚀 [Click Here to Install the Firmware Directly from Your Web Browser!](https://ArnaudHocevar.github.io/esp32-elt-12k/)
+
+*Compatible hardware targets: ESP32-C6 (see attached diagram for RS485 wiring) and Waveshare ESP32-S3 (TBD).*
+
 ## Development roadmap
 - [X] Collect data from Modbus
+- [X] Implement one-click installation
+- [ ] Waveshare S3 target
 - [ ] Implement cleaner handling of enumeration and bitmasks
 - [ ] Support for dynamic exponent detection
 - [ ] Multi-speed polling

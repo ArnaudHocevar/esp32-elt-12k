@@ -1,0 +1,12 @@
+{
+  "name": "esp32-elt-12k",
+  "version": "2026.7.4",
+  "builds": [
+    {
+      "chipFamily": "ESP32-C6",
+      "parts": [
+        { "path": "binaries/esp32c6-elt12k.bin", "offset": 0 }
+      ]
+    }
+  ]
+}
