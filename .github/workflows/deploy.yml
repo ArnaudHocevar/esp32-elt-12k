@@ -6,7 +6,9 @@ on:
     tags:
       - 'v*'
     paths:
-      - 'elt-12k.yaml'
+      - 'esp32-c6-elt-12k.yaml'
+      - 'esp32-s3-elt-12k.yaml'
+      - 'common/*.yaml'
       - 'docs/manifest.json'
 
 permissions:
@@ -19,17 +21,27 @@ jobs:
       image: python:3.11-slim
     steps:
       - name: Checkout Code Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install ESPHome Compiler Suite
         run: |
           pip install esphome
+      - name: Prepare secrets file from template
+        run: |
+          echo "=== Generating secrets.yaml from template ==="
+          cp common/secrets.yaml.template common/secrets.yaml
 
       - name: Compile ESP32-C6 Factory Binary
         run: |
-          esphome compile elt-12k.yaml
+          esphome compile esp32-c6-elt-12k.yaml
           mkdir -p docs/binaries
-          cp .esphome/build/project-esp32c6/.pioenvs/project-esp32c6/firmware.factory.bin docs/binaries/esp32c6-elt12k.bin
+          cp .esphome/build/project-esp32c6/.pioenvs/project-esp32c6/firmware.factory.bin docs/binaries/esp32-c6-elt-12k.bin
+
+      - name: Compile ESP32-S3 Factory Binary
+        run: |
+          esphome compile esp32-s3-elt-12k.yaml
+          mkdir -p docs/binaries
+          cp .esphome/build/project-esp32c6/.pioenvs/project-esp32c6/firmware.factory.bin docs/binaries/esp32-s3-elt-12k.bin
 
       - name: Commit and Push Compiled Binary Assets
         run: |

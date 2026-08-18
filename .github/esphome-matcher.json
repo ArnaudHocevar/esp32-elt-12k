@@ -1,0 +1,21 @@
+{
+  "problemMatcher": [
+    {
+      "owner": "esphome-config-validator",
+      "pattern": [
+        {
+          "regexp": "=== In file '(.*)':",
+          "file": 1
+        },
+        {
+          "regexp": "Failed config",
+          "line": 1
+        },
+        {
+          "regexp": "^\\s*(.*?):\\s*(.*)$",
+          "message": 2
+        }
+      ]
+    }
+  ]
+}

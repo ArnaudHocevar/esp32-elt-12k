@@ -10,16 +10,6 @@ esp32:
   framework:
     type: esp-idf
 
-# Wi-Fi configuration with captive portal fallback
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-  ap:
-    ssid: "ESP32 ELT-12K Fallback"
-    password: !secret ap_password
-
-captive_portal:
-
 # Enable logging
 logger:
 

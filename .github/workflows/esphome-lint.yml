@@ -20,12 +20,19 @@ jobs:
       image: python:3.11-slim
     steps:
       - name: Checkout Code Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install ESPHome Validator Engine
         run: |
           pip install esphome
+      - name: Prepare secrets file from template
+        run: |
+          echo "=== Generating secrets.yaml from template ==="
+          cp common/secrets.yaml.template common/secrets.yaml
 
       - name: Run Validation Checks on ESP32-C6 YAML
         run: |
-          esphome config elt-12k.yaml
+          esphome config esp32-c6-elt-12k.yaml
+      - name: Run Validation Checks on ESP32-S3 YAML
+        run: |
+          esphome config esp32-s3-elt-12k.yaml

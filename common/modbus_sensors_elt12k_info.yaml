@@ -1,0 +1,70 @@
+---
+text_sensor:
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "system_info_manufacturer"
+    address: 40004
+    register_type: holding
+    register_count: 8
+    response_size: 16
+    raw_encode: ANSI
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "system_info_model"
+    address: 40020
+    register_type: holding
+    register_count: 8
+    response_size: 16
+    raw_encode: ANSI
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "system_info_sw_version"
+    address: 40044
+    register_type: holding
+    register_count: 4
+    response_size: 8
+    raw_encode: ANSI
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "system_info_serial_number"
+    address: 40052
+    register_type: holding
+    register_count: 8
+    response_size: 16
+    raw_encode: ANSI
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40089
+    register_type: holding
+    value_type: U_WORD
+    name: "system_heartbeat"
+    icon: mdi:heart-pulse
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40156
+    register_type: holding
+    value_type: S_WORD
+    name: "battery_temp"
+    icon: mdi:thermometer
+    unit_of_measurement: "C"
+    device_class: temperature
+    accuracy_decimals: 1
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_Temp});"
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40157
+    register_type: holding
+    value_type: S_WORD
+    name: "system_temp"
+    icon: mdi:thermometer
+    unit_of_measurement: "C"
+    device_class: temperature
+    accuracy_decimals: 1
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    lambda: "return x * pow(10.0, ${SCALING_FACTOR_Temp});"
