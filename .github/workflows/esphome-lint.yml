@@ -25,6 +25,17 @@ jobs:
       - name: Install ESPHome Validator Engine
         run: |
           pip install esphome
+      - name: Prepare secrets file from template
+        run: |
+          echo "=== Generating secrets.yaml from template ==="
+          cp common/secrets.yaml.template common/secrets.yaml
+
+      - name: Register ESPHome Problem Matcher
+        run: echo "::add-matcher::.github/esphome-matcher.json"
+
+      - name: Run linting checks on ESP32 YAML
+        run: |
+          esphome lint esp32-elt-12k.yaml
 
       - name: Run Validation Checks on ESP32-C6 YAML
         run: |
