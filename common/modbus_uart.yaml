@@ -3,7 +3,7 @@ uart:
   id: modbus_uart
   tx_pin: ${GPIO_TX}
   rx_pin: ${GPIO_RX}
-  baud_rate: ${UART_BAUD_RATE}
+  baud_rate: 115200
   data_bits: 8
   stop_bits: 1
   parity: NONE
@@ -15,3 +15,33 @@ modbus:
   flow_control_pin: ${GPIO_FC}
   role: client
   send_wait_time: ${MODBUS_SEND_DELAY}
+
+select:
+  - id: change_modbus_baud_rate
+    name: modbus_uart_baud_rate_select
+    platform: template
+    options:
+      - "2400"
+      - "9600"
+      - "38400"
+      - "57600"
+      - "115200"
+      - "256000"
+      - "512000"
+      - "921600"
+    initial_option: "115200"
+    optimistic: true
+    restore_value: true
+    internal: false
+    entity_category: config
+    icon: mdi:swap-horizontal
+    set_action:
+      - lambda: |-
+          id(modbus_uart).flush();
+          uint32_t new_baud_rate = stoi(x);
+          ESP_LOGD("change_modbus_baud_rate", "Changing Modbus baud rate from %i to %i",
+                id(modbus_uart).get_baud_rate(), new_baud_rate);
+          if (id(modbus_uart).get_baud_rate() != new_baud_rate) {
+            id(modbus_uart).set_baud_rate(new_baud_rate);
+            id(modbus_uart).load_settings();
+          }

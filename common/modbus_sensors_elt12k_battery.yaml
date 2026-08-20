@@ -174,6 +174,7 @@ binary_sensor:
     register_type: holding
     address: 40097  # low bits 0-15
     bitmask: 0x0001  # documentation says bit 0
+    icon: "mdi:alert-circle-outline"
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
     web_server:
       sorting_group_id: alerts
@@ -183,6 +184,7 @@ binary_sensor:
     register_type: holding
     address: 40097  # low bits 0-15
     bitmask: 0x0002  # documentation says bit 1
+    icon: "mdi:alert-circle-outline"
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
     web_server:
       sorting_group_id: alerts
@@ -192,6 +194,7 @@ binary_sensor:
     register_type: holding
     address: 40097  # low bits 0-15
     bitmask: 0x0008  # documentation says bit 3
+    icon: "mdi:alert-circle-outline"
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
     web_server:
       sorting_group_id: alerts
@@ -201,6 +204,7 @@ binary_sensor:
     register_type: holding
     address: 40097  # low bits 0-15
     bitmask: 0x0020  # documentation says bit 5
+    icon: "mdi:alert-circle-outline"
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
     web_server:
       sorting_group_id: alerts
@@ -210,6 +214,7 @@ binary_sensor:
     register_type: holding
     address: 40097  # low bits 0-15
     bitmask: 0x0080  # documentation says bit 7
+    icon: "mdi:alert-circle-outline"
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
     web_server:
       sorting_group_id: alerts
@@ -219,6 +224,7 @@ binary_sensor:
     register_type: holding
     address: 40097  # low bits 0-15
     bitmask: 0x0200  # documentation says bit 9
+    icon: "mdi:alert-circle-outline"
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
     web_server:
       sorting_group_id: alerts
@@ -228,6 +234,7 @@ binary_sensor:
     register_type: holding
     address: 40097  # low bits 0-15
     bitmask: 0x0800  # documentation says bit 11
+    icon: "mdi:alert-circle-outline"
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
     web_server:
       sorting_group_id: alerts
@@ -237,6 +244,7 @@ binary_sensor:
     register_type: holding
     address: 40096  # high bits 16-31
     bitmask: 0x040  # documentation says bit 22, translated to 6
+    icon: "mdi:alert-circle-outline"
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
     web_server:
       sorting_group_id: alerts
