@@ -3,6 +3,7 @@ text_sensor:
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     name: "system_info_manufacturer"
+    icon: mdi:factory
     address: 40004
     register_type: holding
     register_count: 8
@@ -14,6 +15,7 @@ text_sensor:
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     name: "system_info_model"
+    icon: mdi:cube-outline
     address: 40020
     register_type: holding
     register_count: 8
@@ -25,6 +27,7 @@ text_sensor:
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     name: "system_info_sw_version"
+    icon: mdi:code-tags
     address: 40044
     register_type: holding
     register_count: 4
@@ -36,6 +39,7 @@ text_sensor:
   - platform: modbus_controller
     modbus_controller_id: elt12k_modbus
     name: "system_info_serial_number"
+    icon: mdi:numeric
     address: 40052
     register_type: holding
     register_count: 8
@@ -52,6 +56,10 @@ sensor:
     value_type: U_WORD
     name: "system_heartbeat"
     icon: mdi:heart-pulse
+    filters:
+      - or:
+          - delta: 1.0
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
     web_server:
       sorting_group_id: sys_health
   - platform: modbus_controller
@@ -65,7 +73,7 @@ sensor:
     device_class: temperature
     accuracy_decimals: 1
     skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
-    lambda: "return x * pow(10.0, ${SCALING_FACTOR_Temp});"
+    lambda: "return x * id(mult_Temp);"
     web_server:
       sorting_group_id: sys_health
   - platform: modbus_controller
@@ -79,6 +87,6 @@ sensor:
     device_class: temperature
     accuracy_decimals: 1
     skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
-    lambda: "return x * pow(10.0, ${SCALING_FACTOR_Temp});"
+    lambda: "return x * id(mult_Temp);"
     web_server:
       sorting_group_id: sys_health

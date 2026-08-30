@@ -12,9 +12,67 @@ packages:
 esphome:
   name: esp32-elt-12k
   friendly_name: ESP32 ELT-12K PCS controller
+  on_boot:
+    priority: -100
+    then:
+      - delay: 5s
+      - lambda: |-
+          const std::string &raw = id(sys_debug_info).state;
+          if (raw.empty()) {
+            ESP_LOGW("custom", "Device debug string structure missing.");
+            return;
+          }
+
+          // Zero-allocation token extraction
+          std::string_view sv(raw);
+          std::string_view parts[5];
+          size_t count = 0;
+          size_t start = 0;
+
+          while (count < 5) {
+            size_t end = sv.find('|', start);
+            std::string_view token = (end == std::string_view::npos) ? sv.substr(start) : sv.substr(start, end - start);
+
+            // Trim whitespace in string_view without allocation
+            size_t first = token.find_first_not_of(" ");
+            size_t last = token.find_last_not_of(" ");
+            if (first != std::string_view::npos && last != std::string_view::npos) {
+              token = token.substr(first, (last - first + 1));
+          } else {
+            token = {};
+          }
+
+          parts[count++] = token;
+          if (end == std::string_view::npos) break;
+            start = end + 1;
+          }
+
+          if (count >= 5) {
+            id(sys_esphome_version).publish_state(std::string(parts[0]));
+            id(sys_board_device).publish_state(std::string(parts[2]));
+            id(sys_framework_version).publish_state(std::string(parts[3]));
+
+            // Extract numeric frequency: e.g. "CPU Freq: 240MHz"
+            const char *freq_ptr = strstr(raw.c_str(), "Freq:");
+            if (freq_ptr != nullptr) {
+              freq_ptr += 5; // move past "Freq:"
+              char *endptr = nullptr;
+              float freq_val = strtof(freq_ptr, &endptr);
+              if (freq_val > 0.0f) {
+                id(sys_cpu_freq).publish_state(freq_val);
+              }
+            }
+          } else {
+              ESP_LOGW("custom", "Device debug string structure mismatched or not ready yet.");
+          }
 
 # Enable logging
 logger:
+  level: INFO
+  logs:
+    modbus: WARN
+    modbus_controller: WARN
+    sensor: WARN
 
 # Enable Home Assistant API
 api:
@@ -26,43 +84,81 @@ ota:
     password: ${ota_password}
 
 debug:
-  update_interval: 30s
+  update_interval: 60s
 
 text_sensor:
   - platform: debug
     device:
-      name: "system_device_info"
-      icon: mdi:information-outline
+      id: sys_debug_info
+      internal: true
     reset_reason:
       name: "system_reset_reason"
       icon: mdi:information-outline
+      web_server:
+        sorting_group_id: device_info
+  - platform: template
+    name: "system_esphome_version"
+    id: sys_esphome_version
+    icon: "mdi:cube-outline"
+    update_interval: never
+    web_server:
+      sorting_group_id: device_info
+  - platform: template
+    name: "system_board_device"
+    id: sys_board_device
+    icon: "mdi:cpu-64-bit"
+    update_interval: never
+    web_server:
+      sorting_group_id: device_info
+  - platform: template
+    name: "system_framework_version"
+    id: sys_framework_version
+    icon: "mdi:code-braces"
+    update_interval: never
+    web_server:
+      sorting_group_id: device_info
 
 sensor:
   - platform: internal_temperature
     name: "system_cpu_temp"
-    update_interval: 30s
+    update_interval: 60s
     icon: mdi:thermometer
     unit_of_measurement: "C"
+    web_server:
+      sorting_group_id: device_info
   - platform: debug
     free:
       name: "system_free_heap"
       id: sys_mem_free
       icon: "mdi:memory"
+      web_server:
+        sorting_group_id: device_info
     min_free:
       name: "system_min_free_heap"
       icon: "mdi:memory"
+      web_server:
+        sorting_group_id: device_info
     fragmentation:
       name: "system_mem_fragmentation"
       unit_of_measurement: "%"
       icon: "mdi:memory"
-    cpu_frequency:
-      name: "system_cpu_frequency"
-      unit_of_measurement: "Hz"
-      icon: "mdi:speedometer"
+      web_server:
+        sorting_group_id: device_info
     loop_time:
       name: "system_max_loop_time"
       unit_of_measurement: "ms"
       icon: mdi:timer-sand
+      web_server:
+        sorting_group_id: device_info
+  - platform: template
+    name: "system_cpu_freq"
+    id: sys_cpu_freq
+    icon: "mdi:speedometer"
+    unit_of_measurement: "MHz"
+    state_class: "measurement"
+    update_interval: never
+    web_server:
+      sorting_group_id: device_info
   - platform: template
     name: "system_mem_pct_used"
     id: mem_pct_used
@@ -71,12 +167,16 @@ sensor:
     accuracy_decimals: 1
     update_interval: 30s
     lambda: |-
-      static float initial_heap = 0;
+      static float initial_heap = 0.0f;
+      static float inv_initial_heap = 0.0f;
       float current_free = id(sys_mem_free).state;
-      if (initial_heap == 0 && current_free > 0) {
-          initial_heap = current_free; // Captures total available heap at boot
+      if (initial_heap == 0.0f && current_free > 0.0f) {
+        initial_heap = current_free;
+        inv_initial_heap = 100.0f / initial_heap;
       }
-      if (initial_heap > 0) {
-          return ((initial_heap - current_free) / initial_heap) * 100.0;
+      if (initial_heap > 0.0f) {
+        return (initial_heap - current_free) * inv_initial_heap;
       }
-      return 0;
+      return 0.0f;
+    web_server:
+      sorting_group_id: device_info

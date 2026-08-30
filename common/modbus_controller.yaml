@@ -5,7 +5,6 @@ modbus_controller:
     modbus_id: modbus_bus
     setup_priority: -10
     update_interval: ${MODBUS_TICK_INTERVAL}
-    command_throttle: 300ms
     offline_skip_updates: 5
     on_online:
       then:
@@ -23,9 +22,7 @@ modbus_controller:
             id(modbus_bus).setup();
     on_command_sent:
       then:
-        - lambda: |-
-            id(modbus_counter_raw)++;
-            id(modbus_command_count).publish_state(id(modbus_counter_raw));
+        - lambda: id(modbus_counter_raw)++;
 
 binary_sensor:
   - id: modbus_cx_status
@@ -49,12 +46,17 @@ sensor:
     icon: mdi:server-network
     accuracy_decimals: 0
     state_class: total_increasing
+    update_interval: 30s
+    lambda: "return id(modbus_counter_raw);"
     web_server:
       sorting_group_id: sys_health
 
 button:
   - platform: template
     name: modbus_soft_reset
+    icon: mdi:restart
+    web_server:
+      sorting_group_id: sys_health
     on_press:
       then:
         - lambda: 'id(modbus_bus).setup();'
