@@ -38,13 +38,13 @@ jobs:
         run: |
           esphome compile esp32-c6-elt-12k.yaml
           mkdir -p docs/binaries
-          cp .esphome/build/project-esp32c6/.pioenvs/project-esp32c6/firmware.factory.bin docs/binaries/esp32-c6-elt-12k.bin
+          cp .esphome/build/esp32-elt-12k/.pioenvs/esp32-elt-12k/firmware.factory.bin docs/binaries/esp32-c6-elt-12k.bin
 
       - name: Compile ESP32-S3 Factory Binary
         run: |
           esphome compile esp32-s3-elt-12k.yaml
           mkdir -p docs/binaries
-          cp .esphome/build/project-esp32c6/.pioenvs/project-esp32c6/firmware.factory.bin docs/binaries/esp32-s3-elt-12k.bin
+          cp .esphome/build/esp32-elt-12k/.pioenvs/esp32-elt-12k/firmware.factory.bin docs/binaries/esp32-s3-elt-12k.bin
 
       - name: Commit and Push Compiled Binary Assets
         run: |

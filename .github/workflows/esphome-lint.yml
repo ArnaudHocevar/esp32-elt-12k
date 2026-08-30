@@ -6,12 +6,16 @@ on:
     branches:
       - main
     paths:
-      - '*.yaml'
+      - '**.yaml'
+      - '**.cpp'
+      - '**.h'
   pull_request:
     branches:
       - main
     paths:
-      - '*.yaml'
+      - '**.yaml'
+      - '**.cpp'
+      - '**.h'
 
 jobs:
   validate-config:
