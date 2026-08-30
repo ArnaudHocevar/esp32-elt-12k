@@ -24,3 +24,59 @@ api:
 ota:
   - platform: esphome
     password: ${ota_password}
+
+debug:
+  update_interval: 30s
+
+text_sensor:
+  - platform: debug
+    device:
+      name: "system_device_info"
+      icon: mdi:information-outline
+    reset_reason:
+      name: "system_reset_reason"
+      icon: mdi:information-outline
+
+sensor:
+  - platform: internal_temperature
+    name: "system_cpu_temp"
+    update_interval: 30s
+    icon: mdi:thermometer
+    unit_of_measurement: "C"
+  - platform: debug
+    free:
+      name: "system_free_heap"
+      id: sys_mem_free
+      icon: "mdi:memory"
+    min_free:
+      name: "system_min_free_heap"
+      icon: "mdi:memory"
+    fragmentation:
+      name: "system_mem_fragmentation"
+      unit_of_measurement: "%"
+      icon: "mdi:memory"
+    cpu_frequency:
+      name: "system_cpu_frequency"
+      unit_of_measurement: "Hz"
+      icon: "mdi:speedometer"
+    loop_time:
+      name: "system_max_loop_time"
+      unit_of_measurement: "ms"
+      icon: mdi:timer-sand
+  - platform: template
+    name: "system_mem_pct_used"
+    id: mem_pct_used
+    unit_of_measurement: "%"
+    icon: "mdi:memory"
+    accuracy_decimals: 1
+    update_interval: 30s
+    lambda: |-
+      static float initial_heap = 0;
+      float current_free = id(sys_mem_free).state;
+      if (initial_heap == 0 && current_free > 0) {
+          initial_heap = current_free; // Captures total available heap at boot
+      }
+      if (initial_heap > 0) {
+          return ((initial_heap - current_free) / initial_heap) * 100.0;
+      }
+      return 0;
