@@ -11,7 +11,7 @@ sensor:
     icon: mdi:battery
     accuracy_decimals: 2
     skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
-    lambda: "return x * pow(10.0, ${SCALING_FACTOR_WHRtg});"
+    lambda: "return x * id(mult_WHRtg);"
     web_server:
       sorting_group_id: battery_info
   - platform: modbus_controller
@@ -24,7 +24,7 @@ sensor:
     device_class: power
     icon: mdi:battery-arrow-up
     skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
-    lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+    lambda: "return x * id(mult_W);"
     web_server:
       sorting_group_id: battery_info
   - platform: modbus_controller
@@ -37,7 +37,7 @@ sensor:
     device_class: power
     icon: mdi:battery-arrow-down
     skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
-    lambda: "return x * pow(10.0, ${SCALING_FACTOR_W});"
+    lambda: "return x * id(mult_W);"
     web_server:
       sorting_group_id: battery_info
   - platform: modbus_controller
@@ -51,7 +51,7 @@ sensor:
     accuracy_decimals: 1
     icon: mdi:battery-charging-high
     skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
-    lambda: "return x * pow(10.0, ${SCALING_FACTOR_SoC});"
+    lambda: "return x * id(mult_SoC);"
     web_server:
       sorting_group_id: battery_info
   - platform: modbus_controller
@@ -65,7 +65,7 @@ sensor:
     accuracy_decimals: 1
     icon: mdi:battery-charging-low
     skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
-    lambda: "return x * pow(10.0, ${SCALING_FACTOR_SoC});"
+    lambda: "return x * id(mult_SoC);"
     web_server:
       sorting_group_id: battery_info
   - platform: modbus_controller
@@ -79,7 +79,11 @@ sensor:
     accuracy_decimals: 1
     icon: mdi:battery-charging-medium
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
-    lambda: "return x * pow(10.0, ${SCALING_FACTOR_SoC});"
+    lambda: "return x * id(mult_SoC);"
+    filters:
+      - or:
+          - delta: 0.1
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
     web_server:
       sorting_group_id: battery_info
   - platform: modbus_controller
@@ -92,7 +96,11 @@ sensor:
     device_class: battery
     icon: mdi:battery-charging-high
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
-    lambda: "return x * pow(10.0, ${SCALING_FACTOR_SoH});"
+    lambda: "return x * id(mult_SoH);"
+    filters:
+      - or:
+          - delta: 0.5
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
     web_server:
       sorting_group_id: battery_info
   - platform: modbus_controller
@@ -107,16 +115,16 @@ sensor:
         - text_sensor.template.publish:
             id: battery_charge_status_enum
             state: !lambda |-
-              switch ((int) x) {
-                case 1: return std::string("Off");
-                case 2: return std::string("Empty");
-                case 3: return std::string("Discharging");
-                case 4: return std::string("Charging");
-                case 5: return std::string("Full");
-                case 6: return std::string("Holding");
-                case 7: return std::string("Testing");
-                default: return std::string("Unknown Status");
-              }
+              switch (static_cast<int>(x)) {
+                case 1: return "Off";
+                case 2: return "Empty";
+                case 3: return "Discharging";
+                case 4: return "Charging";
+                case 5: return "Full";
+                case 6: return "Holding";
+                case 7: return "Testing";
+                default: return "Unknown Status";
+                }
 
 text_sensor:
   - platform: template
@@ -143,8 +151,8 @@ number:
     icon: mdi:battery-charging-high
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
     # Careful, values are inverted due to negative exponent
-    lambda: "return x * pow(10.0, ${SCALING_FACTOR_SoC});"
-    write_lambda: "return x / pow(10.0, ${SCALING_FACTOR_SoC});"
+    lambda: "return x * id(mult_SoC);"
+    write_lambda: "return x * id(div_SoC);"
     web_server:
       sorting_group_id: tunables
   - platform: modbus_controller
@@ -161,8 +169,8 @@ number:
     icon: mdi:battery-charging-low
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
     # Careful, values are inverted due to negative exponent
-    lambda: "return x * pow(10.0, ${SCALING_FACTOR_SoC});"
-    write_lambda: "return x / pow(10.0, ${SCALING_FACTOR_SoC});"
+    lambda: "return x * id(mult_SoC);"
+    write_lambda: "return x * id(div_SoC);"
     web_server:
       sorting_group_id: tunables
 

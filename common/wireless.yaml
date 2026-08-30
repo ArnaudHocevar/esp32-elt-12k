@@ -2,6 +2,8 @@
 wifi:
   ssid: ${base_wifi_ssid}
   password: ${base_wifi_password}
+  fast_connect: true
+  power_save_mode: LIGHT
   ap:
     ssid: "ESP32 ELT-12K Fallback"
     password: ${ap_wifi_password}
@@ -12,20 +14,24 @@ text_sensor:
   - platform: wifi_info
     ip_address:
       name: "IP Address"
+      icon: mdi:ip-network
       web_server:
-        sorting_group_id: wireless_info
+        sorting_group_id: device_info
     mac_address:
       name: "MAC Address"
+      icon: mdi:network-outline
       web_server:
-        sorting_group_id: wireless_info
+        sorting_group_id: device_info
     ssid:
       name: "Current SSID"
+      icon: mdi:wifi-settings
       web_server:
-        sorting_group_id: wireless_info
+        sorting_group_id: device_info
 
 sensor:
   - platform: wifi_signal
     name: "WiFi Signal"
-    update_interval: 30s
+    icon: mdi:wifi
+    update_interval: 60s
     web_server:
-      sorting_group_id: wireless_info
+      sorting_group_id: device_info

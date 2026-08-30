@@ -15,6 +15,7 @@ modbus:
   flow_control_pin: ${GPIO_FC}
   role: client
   send_wait_time: ${MODBUS_SEND_DELAY}
+  turnaround_time: 200ms
 
 select:
   - id: change_modbus_baud_rate

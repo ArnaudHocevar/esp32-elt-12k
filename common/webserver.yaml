@@ -7,26 +7,26 @@ web_server:
     - id: alerts
       name: Alerts
       sorting_weight: 1.0
+    - id: device_info
+      name: Device information
+      sorting_weight: 2.0
     - id: sys_info
       name: System information
-      sorting_weight: 2.0
+      sorting_weight: 3.0
     - id: sys_health
       name: System health
-      sorting_weight: 3.0
+      sorting_weight: 4.0
     - id: battery_info
       name: Battery-related information
-      sorting_weight: 4.0
+      sorting_weight: 5.0
     - id: tunables
       name: User-defined tunables
-      sorting_weight: 5.0
+      sorting_weight: 6.0
     - id: battery_power
       name: Battery power
-      sorting_weight: 6.0
+      sorting_weight: 7.0
     - id: grid_power
       name: Grid power
-      sorting_weight: 7.0
-    - id: wireless_info
-      name: Wifi details
       sorting_weight: 8.0
 
 mdns:
