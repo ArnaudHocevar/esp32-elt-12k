@@ -49,8 +49,8 @@ esphome:
 
           if (count >= 5) {
             id(sys_esphome_version).publish_state(std::string(parts[0]));
-            id(sys_board_device).publish_state(std::string(parts[2]));
-            id(sys_framework_version).publish_state(std::string(parts[3]));
+            id(sys_board_device).publish_state(std::string(parts[1]));
+            id(sys_framework_version).publish_state(std::string(parts[4]));
 
             // Extract numeric frequency: e.g. "CPU Freq: 240MHz"
             const char *freq_ptr = strstr(raw.c_str(), "Freq:");
