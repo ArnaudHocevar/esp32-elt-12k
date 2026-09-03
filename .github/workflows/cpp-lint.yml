@@ -61,4 +61,5 @@ jobs:
                     -efm="%f:%l: %twarning: %m" \
                     -name="clang-tidy" \
                     -reporter="github-pr-review" \
-                    -filter-mode="diff"
+                    -filter-mode="added" \
+                    -fail-level="error"
