@@ -20,18 +20,13 @@ on:
 jobs:
   validate-config:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/esphome/esphome:2026.7.0
+
     steps:
       - name: Checkout Code Repository
         uses: actions/checkout@v7
 
-      - name: Set up Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: '3.11'
-
-      - name: Install ESPHome Validator Engine
-        run: |
-          pip install esphome
       - name: Prepare secrets file from template
         run: |
           echo "=== Generating secrets.yaml from template ==="
