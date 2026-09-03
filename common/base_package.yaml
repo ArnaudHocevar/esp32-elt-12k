@@ -11,14 +11,13 @@ esphome:
   name: esp32-elt-12k
   friendly_name: ESP32 ELT-12K PCS controller
   includes:
-    - include/device_debug_parser.h
-    - include/device_debug_parser.cpp
+    - include/device_string.h
   on_boot:
     priority: -100
     then:
       - delay: 5s
       - lambda: |-
-          auto info = device_string::parse_device_string(id(sys_debug_info).state);
+          auto info = esp32_elt12k::device_string::parse_device_string(id(sys_debug_info).state);
           if (info.valid) {
             id(sys_esphome_version).publish_state(info.esphome_version);
             id(sys_board_device).publish_state(info.board_device);

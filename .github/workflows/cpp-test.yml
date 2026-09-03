@@ -1,0 +1,62 @@
+---
+name: cpp-test.yml
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**.cpp'
+      - '**.h'
+      - 'CMakeLists.txt'
+      - '.github/workflows/cpp-test.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**.cpp'
+      - '**.h'
+      - 'CMakeLists.txt'
+      - '.github/workflows/cpp-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  test:
+    name: Build & Run C++ Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v7
+
+      - name: Install Build & Test Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake doctest-dev
+
+      - name: Configure CMake
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build C++ Test Binaries
+        run: |
+          cmake --build build --config Debug
+
+      - name: Run C++ Test Suite (CTest)
+        run: |
+          mkdir -p build/test-results
+          ctest --test-dir build --output-junit test-results/junit.xml --output-on-failure
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v6
+        if: always()
+        with:
+          report_paths: 'build/test-results/*.xml'
+          check_name: 'C++ Unit Test Results'
+          fail_on_failure: true
+          require_tests: true
