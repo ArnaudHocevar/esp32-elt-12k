@@ -37,12 +37,30 @@ jobs:
       - name: Compile factory binary
         run: |
           esphome compile ${{ matrix.config.yaml }}
-          mkdir -p docs/binaries
-          cp .esphome/build/esp32-elt-12k/.pioenvs/esp32-elt-12k/firmware.factory.bin docs/binaries/${{ matrix.config.output }}
+          cp .esphome/build/esp32-elt-12k/build/firmware.factory.bin ${{ matrix.config.output }}
+
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.config.output }}
+          path: ${{ matrix.config.output }}
+
+  publish-firmware:
+    runs-on: ubuntu-latest
+    needs: build-firmware
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v7
+
+      - name: Download firmware artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: docs/binaries
+          merge-multiple: true
 
       - name: Commit and Push Compiled Binary Assets
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/binaries/${{ matrix.config.output }}
-          git diff-index --quiet HEAD || (git commit -m "Automated firmware factory compilation (${{ matrix.config.output }}) [skip ci]" && git push)
+          git add docs/binaries/*.bin
+          git diff-index --quiet HEAD || (git commit -m "Automated firmware factory compilation [skip ci]" && git push)
