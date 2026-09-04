@@ -1,6 +1,6 @@
 ---
 packages:
-  - !include common/device_esp32-s3.yaml
+  - !include common/devices/esp32-s3.yaml
   - !include common/base_package.yaml
 
 substitutions:
