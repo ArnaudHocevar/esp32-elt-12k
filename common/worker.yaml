@@ -1,0 +1,15 @@
+---
+select:
+  - id: select_work_mode
+    name: work_mode
+    platform: template
+    options:
+      - "read-only"
+      - "peak-shaving"
+      - "self-consumption"
+    initial_option: "read-only"
+    optimistic: true
+    restore_value: true
+    internal: false
+    entity_category: config
+    icon: mdi:swap-horizontal
