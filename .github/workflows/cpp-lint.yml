@@ -38,7 +38,7 @@ jobs:
       - name: Install Build and Lint Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y doctest-dev
+          sudo apt-get install -y clang-tidy doctest-dev
 
       - name: Set up official ReviewDog
         uses: reviewdog/action-setup@v1

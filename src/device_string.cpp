@@ -3,6 +3,7 @@
 #include <array>
 #include <charconv>
 #include <cstddef>
+#include <string>
 #include <string_view>
 
 namespace esp32_elt12k::device_string {
@@ -14,6 +15,45 @@ namespace esp32_elt12k::device_string {
             }
             const auto last = str.find_last_not_of(" \t\r\n");
             return str.substr(first, last - first + 1);
+        }
+
+        [[nodiscard]] auto parse_board_device(std::string_view board_info) -> std::string {
+            board_info = trim(board_info);
+            if (board_info.empty()) {
+                return {};
+            }
+
+            constexpr std::string_view chip_prefix = "Chip:";
+            constexpr std::string_view revision_key = "Revision:";
+            constexpr std::string_view cores_key = "Cores:";
+
+            if (board_info.starts_with(chip_prefix)) {
+                return std::string{board_info};
+            }
+
+            auto chip_name = trim(board_info.substr(chip_prefix.size()));
+            if (const auto features_pos = chip_name.find("Features:"); features_pos != std::string_view::npos) {
+                chip_name = trim(chip_name.substr(0, features_pos));
+            }
+
+            const auto parse_uint_field = [&](const std::string_view key) -> std::string_view {
+                const auto key_pos = board_info.find(key);
+                if (key_pos == std::string_view::npos) {
+                    return {};
+                }
+                auto value = board_info.substr(key_pos + key.size());
+                value = trim(value);
+                const auto end = value.find_first_not_of("0123456789");
+                return (end == std::string_view::npos) ? value : value.substr(0, end);
+            };
+
+            const auto revision = parse_uint_field(revision_key);
+            const auto cores = parse_uint_field(cores_key);
+            if (chip_name.empty() || revision.empty() || cores.empty()) {
+                return std::string{board_info};
+            }
+
+            return std::string{chip_name} + " (rev: " + std::string{revision} + ", " + std::string{cores} + " CPU)";
         }
     }
 
@@ -63,10 +103,10 @@ namespace esp32_elt12k::device_string {
 
         if (count >= parts.size()) {
             info.esphome_version = parts[0];
-            info.board_device = parts[1];
+            info.board_device = parse_board_device(parts[1]);
             info.framework_version = parts[4];
-            info.valid = true;
             info.cpu_freq = extract_cpu_frequency(raw);
+            info.valid = true;
         }
 
         return info;

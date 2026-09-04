@@ -41,7 +41,7 @@ select:
       - logger.log:
           tag: "modbus"
           level: DEBUG
-          format: "Changing Modbus baud rate from %lx to %lx"
+          format: "Changing Modbus baud rate from %u to %u"
           args: ['id(modbus_uart).get_baud_rate()', 'stoi(x)']
       - lambda: |-
           id(modbus_uart).flush();

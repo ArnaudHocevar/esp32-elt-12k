@@ -12,6 +12,7 @@ esphome:
   friendly_name: ESP32 ELT-12K PCS controller
   includes:
     - include/device_string.h
+    - src/device_string.cpp
   on_boot:
     priority: -100
     then:
