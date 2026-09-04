@@ -1,5 +1,5 @@
 ---
-name: Compile ESPHome Firmware Binaries
+name: Build ESPHome Firmware Binaries
 
 on:
   push:
@@ -17,38 +17,32 @@ permissions:
 jobs:
   build-firmware:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        config:
+          - yaml: esp32-c6-elt-12k.yaml
+            output: esp32-c6-elt-12k.bin
+          - yaml: esp32-s3-elt-12k.yaml
+            output: esp32-s3-elt-12k.bin
+    container:
+      image: ghcr.io/esphome/esphome:2026.8.2
     steps:
       - name: Checkout Code Repository
         uses: actions/checkout@v7
 
-      - name: Set up Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: '3.11'
-
-      - name: Install ESPHome Compiler Suite
-        run: |
-          pip install esphome
       - name: Prepare secrets file from template
         run: |
-          echo "=== Generating secrets.yaml from template ==="
           cp secrets.yaml.template secrets.yaml
 
-      - name: Compile ESP32-C6 Factory Binary
+      - name: Compile factory binary
         run: |
-          esphome compile esp32-c6-elt-12k.yaml
+          esphome compile ${{ matrix.config.yaml }}
           mkdir -p docs/binaries
-          cp .esphome/build/esp32-elt-12k/.pioenvs/esp32-elt-12k/firmware.factory.bin docs/binaries/esp32-c6-elt-12k.bin
-
-      - name: Compile ESP32-S3 Factory Binary
-        run: |
-          esphome compile esp32-s3-elt-12k.yaml
-          mkdir -p docs/binaries
-          cp .esphome/build/esp32-elt-12k/.pioenvs/esp32-elt-12k/firmware.factory.bin docs/binaries/esp32-s3-elt-12k.bin
+          cp .esphome/build/esp32-elt-12k/.pioenvs/esp32-elt-12k/firmware.factory.bin docs/binaries/${{ matrix.config.output }}
 
       - name: Commit and Push Compiled Binary Assets
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/binaries/*.bin
-          git diff-index --quiet HEAD || (git commit -m "Automated firmware factory compilation [skip ci]" && git push)
+          git add docs/binaries/${{ matrix.config.output }}
+          git diff-index --quiet HEAD || (git commit -m "Automated firmware factory compilation (${{ matrix.config.output }}) [skip ci]" && git push)
