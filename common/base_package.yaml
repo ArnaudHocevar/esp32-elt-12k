@@ -4,66 +4,30 @@ packages:
   - !include modbus_uart.yaml
   - !include wireless.yaml
   - !include modbus_controller.yaml
-  - !include modbus_sensors_elt12k_info.yaml
-  - !include modbus_sensors_elt12k_battery.yaml
-  - !include modbus_sensors_elt12k_power.yaml
+  - !include modbus_sensors_elt12k.yaml
   - !include webserver.yaml
 
 esphome:
   name: esp32-elt-12k
   friendly_name: ESP32 ELT-12K PCS controller
+  includes:
+    - include/device_string.h
+    - src/device_string.cpp
   on_boot:
     priority: -100
     then:
       - delay: 5s
       - lambda: |-
-          const std::string &raw = id(sys_debug_info).state;
-          if (raw.empty()) {
-            ESP_LOGW("custom", "Device debug string structure missing.");
-            return;
-          }
-
-          // Zero-allocation token extraction
-          std::string_view sv(raw);
-          std::string_view parts[5];
-          size_t count = 0;
-          size_t start = 0;
-
-          while (count < 5) {
-            size_t end = sv.find('|', start);
-            std::string_view token = (end == std::string_view::npos) ? sv.substr(start) : sv.substr(start, end - start);
-
-            // Trim whitespace in string_view without allocation
-            size_t first = token.find_first_not_of(" ");
-            size_t last = token.find_last_not_of(" ");
-            if (first != std::string_view::npos && last != std::string_view::npos) {
-              token = token.substr(first, (last - first + 1));
-          } else {
-            token = {};
-          }
-
-          parts[count++] = token;
-          if (end == std::string_view::npos) break;
-            start = end + 1;
-          }
-
-          if (count >= 5) {
-            id(sys_esphome_version).publish_state(std::string(parts[0]));
-            id(sys_board_device).publish_state(std::string(parts[1]));
-            id(sys_framework_version).publish_state(std::string(parts[4]));
-
-            // Extract numeric frequency: e.g. "CPU Freq: 240MHz"
-            const char *freq_ptr = strstr(raw.c_str(), "Freq:");
-            if (freq_ptr != nullptr) {
-              freq_ptr += 5; // move past "Freq:"
-              char *endptr = nullptr;
-              float freq_val = strtof(freq_ptr, &endptr);
-              if (freq_val > 0.0f) {
-                id(sys_cpu_freq).publish_state(freq_val);
-              }
+          auto info = esp32_elt12k::device_string::parse_device_string(id(sys_debug_info).state);
+          if (info.valid) {
+            id(sys_esphome_version).publish_state(info.esphome_version);
+            id(sys_board_device).publish_state(info.board_device);
+            id(sys_framework_version).publish_state(info.framework_version);
+            if (info.cpu_freq > 0.0f) {
+              id(sys_cpu_freq).publish_state(info.cpu_freq);
             }
           } else {
-              ESP_LOGW("custom", "Device debug string structure mismatched or not ready yet.");
+            ESP_LOGW("custom", "Device debug string structure mismatched or not ready yet.");
           }
 
 # Enable logging

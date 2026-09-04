@@ -1,0 +1,674 @@
+---
+text_sensor:
+  # --- SunSpec Model 1: Common / Device Information ---
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "system_info_manufacturer"
+    icon: mdi:factory
+    address: 40004
+    register_type: holding
+    register_count: 8
+    response_size: 16
+    raw_encode: ANSI
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    web_server:
+      sorting_group_id: sys_info
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "system_info_model"
+    icon: mdi:cube-outline
+    address: 40020
+    register_type: holding
+    register_count: 8
+    response_size: 16
+    raw_encode: ANSI
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    web_server:
+      sorting_group_id: sys_info
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "system_info_sw_version"
+    icon: mdi:code-tags
+    address: 40044
+    register_type: holding
+    register_count: 4
+    response_size: 8
+    raw_encode: ANSI
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    web_server:
+      sorting_group_id: sys_info
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "system_info_serial_number"
+    icon: mdi:numeric
+    address: 40052
+    register_type: holding
+    register_count: 8
+    response_size: 16
+    raw_encode: ANSI
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    web_server:
+      sorting_group_id: sys_info
+
+  # --- Battery Status Enum Helper ---
+  - platform: template
+    id: battery_charge_status_enum
+    name: "battery_charge_status"
+    icon: mdi:battery-sync
+    web_server:
+      sorting_group_id: battery_info
+      sorting_weight: 1.0
+
+sensor:
+  # --- SunSpec Model 802: Battery Ratings & Base State ---
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40073
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_capacity"
+    unit_of_measurement: "kWh"
+    device_class: energy
+    icon: mdi:battery
+    accuracy_decimals: 2
+    force_new_range: true
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    lambda: "return x * id(mult_WHRtg);"
+    web_server:
+      sorting_group_id: battery_info
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40074
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_max_charge_rate"
+    unit_of_measurement: "W"
+    device_class: power
+    icon: mdi:battery-arrow-up
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    lambda: "return x * id(mult_W);"
+    web_server:
+      sorting_group_id: battery_info
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40075
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_max_discharge_rate"
+    unit_of_measurement: "W"
+    device_class: power
+    icon: mdi:battery-arrow-down
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    lambda: "return x * id(mult_W);"
+    web_server:
+      sorting_group_id: battery_info
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40077
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_manufacturer_max_charge_state"
+    unit_of_measurement: "%"
+    device_class: battery
+    accuracy_decimals: 1
+    icon: mdi:battery-charging-high
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    lambda: "return x * id(mult_SoC);"
+    web_server:
+      sorting_group_id: battery_info
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40078
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_manufacturer_min_charge_state"
+    unit_of_measurement: "%"
+    device_class: battery
+    accuracy_decimals: 1
+    icon: mdi:battery-charging-low
+    skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
+    lambda: "return x * id(mult_SoC);"
+    web_server:
+      sorting_group_id: battery_info
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40081
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_charge"
+    unit_of_measurement: "%"
+    device_class: battery
+    accuracy_decimals: 1
+    icon: mdi:battery-charging-medium
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    lambda: "return x * id(mult_SoC);"
+    filters:
+      - or:
+          - delta: 0.1
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: battery_info
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40083
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_max_charge"
+    unit_of_measurement: "%"
+    device_class: battery
+    icon: mdi:battery-charging-high
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    lambda: "return x * id(mult_SoH);"
+    filters:
+      - or:
+          - delta: 0.5
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: battery_info
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    id: raw_battery_charge_status
+    address: 40086
+    register_type: holding
+    value_type: U_WORD
+    internal: true
+    on_value:
+      then:
+        - text_sensor.template.publish:
+            id: battery_charge_status_enum
+            state: !lambda |-
+              switch (static_cast<int>(x)) {
+                case 1: return "Off";
+                case 2: return "Empty";
+                case 3: return "Discharging";
+                case 4: return "Charging";
+                case 5: return "Full";
+                case 6: return "Holding";
+                case 7: return "Testing";
+                default: return "Unknown Status";
+              }
+
+  # --- System Heartbeat ---
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40089
+    register_type: holding
+    value_type: U_WORD
+    name: "system_heartbeat"
+    icon: mdi:heart-pulse
+    filters:
+      - or:
+          - delta: 1.0
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: sys_health
+
+  # --- Real-Time Electrical Measurements (Power & Energy) ---
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40104
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_bus_voltage"
+    force_new_range: true
+    icon: mdi:lightning-bolt
+    unit_of_measurement: "V"
+    device_class: voltage
+    accuracy_decimals: 1
+    lambda: "return x * id(mult_V);"
+    filters:
+      - or:
+          - delta: 0.1
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: battery_power
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40114
+    register_type: holding
+    value_type: S_WORD
+    name: "battery_bus_current"
+    icon: mdi:current-dc
+    unit_of_measurement: "A"
+    device_class: current
+    accuracy_decimals: 1
+    lambda: "return x * id(mult_A);"
+    filters:
+      - or:
+          - delta: 0.1
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: battery_power
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40117
+    register_type: holding
+    value_type: S_WORD
+    name: "battery_power"
+    icon: mdi:battery-charging
+    unit_of_measurement: "W"
+    device_class: power
+    lambda: "return x * id(mult_W);"
+    filters:
+      - or:
+          - delta: 10.0
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: battery_power
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40134
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_voltage"
+    icon: mdi:battery-high
+    unit_of_measurement: "V"
+    device_class: voltage
+    accuracy_decimals: 1
+    lambda: "return x * id(mult_V);"
+    filters:
+      - or:
+          - delta: 0.1
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: battery_power
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40135
+    register_type: holding
+    value_type: S_WORD
+    name: "active_power_l1"
+    icon: mdi:flash
+    unit_of_measurement: "W"
+    device_class: power
+    lambda: "return x * id(mult_W);"
+    filters:
+      - or:
+          - delta: 10.0
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: grid_power
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40136
+    register_type: holding
+    value_type: S_WORD
+    name: "active_power_l2"
+    icon: mdi:flash
+    unit_of_measurement: "W"
+    device_class: power
+    lambda: "return x * id(mult_W);"
+    filters:
+      - or:
+          - delta: 10.0
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: grid_power
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40137
+    register_type: holding
+    value_type: S_WORD
+    name: "active_power_l3"
+    icon: mdi:flash
+    unit_of_measurement: "W"
+    device_class: power
+    lambda: "return x * id(mult_W);"
+    filters:
+      - or:
+          - delta: 10.0
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: grid_power
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40138
+    register_type: holding
+    value_type: S_WORD
+    name: "reactive_power_l1"
+    icon: mdi:flash-outline
+    unit_of_measurement: "Var"
+    device_class: reactive_power
+    lambda: "return x * id(mult_W);"
+    filters:
+      - or:
+          - delta: 10.0
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: grid_power
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40139
+    register_type: holding
+    value_type: S_WORD
+    name: "reactive_power_l2"
+    icon: mdi:flash-outline
+    unit_of_measurement: "Var"
+    device_class: reactive_power
+    lambda: "return x * id(mult_W);"
+    filters:
+      - or:
+          - delta: 10.0
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: grid_power
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40140
+    register_type: holding
+    value_type: S_WORD
+    name: "reactive_power_l3"
+    icon: mdi:flash-outline
+    unit_of_measurement: "Var"
+    device_class: reactive_power
+    lambda: "return x * id(mult_W);"
+    filters:
+      - or:
+          - delta: 10.0
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: grid_power
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40146
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_charge_daily"
+    icon: mdi:battery-arrow-up
+    unit_of_measurement: "kWh"
+    device_class: energy
+    accuracy_decimals: 2
+    lambda: "return x * id(mult_Energy);"
+    filters:
+      - or:
+          - delta: 0.05
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: battery_power
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40147
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_discharge_daily"
+    icon: mdi:battery-arrow-down
+    unit_of_measurement: "kWh"
+    device_class: energy
+    accuracy_decimals: 2
+    lambda: "return x * id(mult_Energy);"
+    filters:
+      - or:
+          - delta: 0.05
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: battery_power
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40148
+    register_type: holding
+    value_type: U_WORD
+    register_count: 2
+    name: "battery_charge_total"
+    icon: mdi:battery-arrow-up-outline
+    unit_of_measurement: "kWh"
+    device_class: energy
+    accuracy_decimals: 2
+    lambda: "return x * id(mult_Energy);"
+    filters:
+      - or:
+          - delta: 0.05
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: battery_power
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40150
+    register_type: holding
+    value_type: U_WORD
+    register_count: 2
+    name: "battery_discharge_total"
+    icon: mdi:battery-arrow-down-outline
+    unit_of_measurement: "kWh"
+    device_class: energy
+    accuracy_decimals: 2
+    lambda: "return x * id(mult_Energy);"
+    filters:
+      - or:
+          - delta: 0.05
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: battery_power
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40153
+    register_type: holding
+    value_type: S_WORD
+    name: "grid_power_l1"
+    icon: mdi:transmission-tower
+    unit_of_measurement: "W"
+    device_class: power
+    lambda: "return x * id(mult_W);"
+    filters:
+      - or:
+          - delta: 10.0
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: grid_power
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40154
+    register_type: holding
+    value_type: S_WORD
+    name: "grid_power_l2"
+    icon: mdi:transmission-tower
+    unit_of_measurement: "W"
+    device_class: power
+    lambda: "return x * id(mult_W);"
+    filters:
+      - or:
+          - delta: 10.0
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: grid_power
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40155
+    register_type: holding
+    value_type: S_WORD
+    name: "grid_power_l3"
+    icon: mdi:transmission-tower
+    unit_of_measurement: "W"
+    device_class: power
+    lambda: "return x * id(mult_W);"
+    filters:
+      - or:
+          - delta: 10.0
+          - heartbeat: ${MODBUS_NO_VARIATION_HEARTBEAT}
+    web_server:
+      sorting_group_id: grid_power
+
+  # --- Temperature Sensors ---
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40156
+    register_type: holding
+    value_type: S_WORD
+    name: "battery_temp"
+    icon: mdi:thermometer
+    unit_of_measurement: "C"
+    device_class: temperature
+    accuracy_decimals: 1
+    force_new_range: true
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    lambda: "return x * id(mult_Temp);"
+    web_server:
+      sorting_group_id: sys_health
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40157
+    register_type: holding
+    value_type: S_WORD
+    name: "system_temp"
+    icon: mdi:thermometer
+    unit_of_measurement: "C"
+    device_class: temperature
+    accuracy_decimals: 1
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    lambda: "return x * id(mult_Temp);"
+    web_server:
+      sorting_group_id: sys_health
+
+number:
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40079
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_charge_limit"
+    unit_of_measurement: "%"
+    device_class: battery
+    step: 0.1
+    min_value: 10.0
+    max_value: 100.0
+    icon: mdi:battery-charging-high
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    # Careful, values are inverted due to negative exponent
+    lambda: "return x * id(mult_SoC);"
+    write_lambda: "return x * id(div_SoC);"
+    web_server:
+      sorting_group_id: tunables
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40080
+    register_type: holding
+    value_type: U_WORD
+    name: "battery_discharge_limit"
+    unit_of_measurement: "%"
+    device_class: battery
+    step: 0.1
+    min_value: 10.0
+    max_value: 100.0
+    icon: mdi:battery-charging-low
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    # Careful, values are inverted due to negative exponent
+    lambda: "return x * id(mult_SoC);"
+    write_lambda: "return x * id(div_SoC);"
+    web_server:
+      sorting_group_id: tunables
+
+binary_sensor:
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "battery_event_communication_error"
+    register_type: holding
+    address: 40097  # low bits 0-15
+    bitmask: 0x0001  # documentation says bit 0
+    icon: "mdi:alert-circle-outline"
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    web_server:
+      sorting_group_id: alerts
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "battery_event_over_temp_alarm"
+    register_type: holding
+    address: 40097  # low bits 0-15
+    bitmask: 0x0002  # documentation says bit 1
+    icon: "mdi:alert-circle-outline"
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    web_server:
+      sorting_group_id: alerts
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "battery_event_under_temp_alarm"
+    register_type: holding
+    address: 40097  # low bits 0-15
+    bitmask: 0x0008  # documentation says bit 3
+    icon: "mdi:alert-circle-outline"
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    web_server:
+      sorting_group_id: alerts
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "battery_event_over_charge_current_alarm"
+    register_type: holding
+    address: 40097  # low bits 0-15
+    bitmask: 0x0020  # documentation says bit 5
+    icon: "mdi:alert-circle-outline"
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    web_server:
+      sorting_group_id: alerts
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "battery_event_over_discharge_current_alarm"
+    register_type: holding
+    address: 40097  # low bits 0-15
+    bitmask: 0x0080  # documentation says bit 7
+    icon: "mdi:alert-circle-outline"
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    web_server:
+      sorting_group_id: alerts
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "battery_event_over_voltage_alarm"
+    register_type: holding
+    address: 40097  # low bits 0-15
+    bitmask: 0x0200  # documentation says bit 9
+    icon: "mdi:alert-circle-outline"
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    web_server:
+      sorting_group_id: alerts
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "battery_event_under_voltage_alarm"
+    register_type: holding
+    address: 40097  # low bits 0-15
+    bitmask: 0x0800  # documentation says bit 11
+    icon: "mdi:alert-circle-outline"
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    web_server:
+      sorting_group_id: alerts
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    name: "battery_event_ground_fault"
+    register_type: holding
+    address: 40096  # high bits 16-31
+    bitmask: 0x040  # documentation says bit 22, translated to 6
+    icon: "mdi:alert-circle-outline"
+    skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
+    web_server:
+      sorting_group_id: alerts

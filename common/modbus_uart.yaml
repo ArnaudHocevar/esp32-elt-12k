@@ -24,6 +24,7 @@ select:
     options:
       - "2400"
       - "9600"
+      - "19200"
       - "38400"
       - "57600"
       - "115200"
@@ -37,11 +38,14 @@ select:
     entity_category: config
     icon: mdi:swap-horizontal
     set_action:
+      - logger.log:
+          tag: "modbus"
+          level: DEBUG
+          format: "Changing Modbus baud rate from %u to %u"
+          args: ['id(modbus_uart).get_baud_rate()', 'stoi(x)']
       - lambda: |-
           id(modbus_uart).flush();
           uint32_t new_baud_rate = stoi(x);
-          ESP_LOGD("change_modbus_baud_rate", "Changing Modbus baud rate from %lx to %lx",
-                id(modbus_uart).get_baud_rate(), new_baud_rate);
           if (id(modbus_uart).get_baud_rate() != new_baud_rate) {
             id(modbus_uart).set_baud_rate(new_baud_rate);
             id(modbus_uart).load_settings();

@@ -1,0 +1,65 @@
+---
+name: cpp-lint.yml
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**.cpp'
+      - '**.h'
+      - '.clang-tidy'
+      - 'CMakeLists.txt'
+      - '.github/workflows/cpp-lint.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**.cpp'
+      - '**.h'
+      - '.clang-tidy'
+      - 'CMakeLists.txt'
+      - '.github/workflows/cpp-lint.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  lint:
+    name: Lint C++ with Clang-Tidy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v7
+
+      - name: Install Build and Lint Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-tidy doctest-dev
+
+      - name: Set up official ReviewDog
+        uses: reviewdog/action-setup@v1
+        with:
+          reviewdog_version: latest
+
+      - name: Generate Compilation Database
+        run: |
+          cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Run clang-tidy and pipe to ReviewDog
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          find include src tests -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) | \
+          xargs clang-tidy -p build 2>&1 | \
+          reviewdog -efm="%f:%l:%c: %trror: %m" \
+                    -efm="%f:%l:%c: %twarning: %m" \
+                    -efm="%f:%l: %trror: %m" \
+                    -efm="%f:%l: %twarning: %m" \
+                    -name="clang-tidy" \
+                    -reporter="github-pr-review" \
+                    -filter-mode="added" \
+                    -fail-level="error"

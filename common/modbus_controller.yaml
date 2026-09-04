@@ -11,18 +11,23 @@ modbus_controller:
         - binary_sensor.template.publish:
             id: modbus_cx_status
             state: ON
-        - lambda: ESP_LOGI("modbus", "Modbus connection active");
+        - logger.log:
+            tag: "modbus"
+            level: INFO
+            format: "Modbus connection active"
     on_offline:
       then:
         - binary_sensor.template.publish:
             id: modbus_cx_status
             state: OFF
-        - lambda: |-
-            ESP_LOGW("modbus", "Lost Modbus connection to ELT-12K, retrying after 5 missed requests");
-            id(modbus_bus).setup();
+        - logger.log:
+            tag: "modbus"
+            level: WARN
+            format: "Lost Modbus connection to ELT-12K, retrying after 5 missed requests"
+        - lambda: "id(modbus_bus).setup();"
     on_command_sent:
       then:
-        - lambda: id(modbus_counter_raw)++;
+        - lambda: "id(modbus_counter_raw)++;"
 
 binary_sensor:
   - id: modbus_cx_status
@@ -31,7 +36,7 @@ binary_sensor:
     icon: mdi:server-network
     device_class: connectivity
     web_server:
-      sorting_group_id: alerts
+      sorting_group_id: sys_health
 
 globals:
   - id: modbus_counter_raw
@@ -59,4 +64,4 @@ button:
       sorting_group_id: sys_health
     on_press:
       then:
-        - lambda: 'id(modbus_bus).setup();'
+        - lambda: "id(modbus_bus).setup();"
