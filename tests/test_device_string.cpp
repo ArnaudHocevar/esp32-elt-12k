@@ -44,3 +44,84 @@ TEST_CASE("frequency variant and trimming") {
     CHECK(info.framework_version == "2.0.14");
     CHECK(info.cpu_freq == doctest::Approx(240.0F).epsilon(0.001));
 }
+
+TEST_CASE("extract_cpu_frequency valid formats") {
+    using esp32_elt12k::device_string::extract_cpu_frequency;
+
+    SUBCASE("standard CPU Frequency with unit") {
+        CHECK(extract_cpu_frequency("CPU Frequency: 160 MHz") == doctest::Approx(160.0F).epsilon(0.001));
+    }
+
+    SUBCASE("shortened CPU Freq with unit") {
+        CHECK(extract_cpu_frequency("CPU Freq: 240 MHz") == doctest::Approx(240.0F).epsilon(0.001));
+    }
+
+    SUBCASE("no spaces around value") {
+        CHECK(extract_cpu_frequency("Freq:80MHz") == doctest::Approx(80.0F).epsilon(0.001));
+    }
+
+    SUBCASE("extra spaces and tabs after colon") {
+        CHECK(extract_cpu_frequency("Freq: \t 240 MHz") == doctest::Approx(240.0F).epsilon(0.001));
+    }
+
+    SUBCASE("floating point frequency value") {
+        CHECK(extract_cpu_frequency("CPU Frequency: 160.5 MHz") == doctest::Approx(160.5F).epsilon(0.001));
+    }
+
+    SUBCASE("embedded in longer debug string with earlier colons") {
+        constexpr std::string_view raw =
+            "Chip: ESP32-C6 Revision:0 | CPU Frequency: 160 MHz | Framework: ESP-IDF";
+        CHECK(extract_cpu_frequency(raw) == doctest::Approx(160.0F).epsilon(0.001));
+    }
+}
+
+TEST_CASE("extract_cpu_frequency invalid or missing indicator") {
+    using esp32_elt12k::device_string::extract_cpu_frequency;
+
+    SUBCASE("empty string") {
+        CHECK(extract_cpu_frequency("") == 0.0F);
+    }
+
+    SUBCASE("missing Freq indicator") {
+        CHECK(extract_cpu_frequency("Chip: ESP32-S3 | Clock: 240 MHz") == 0.0F);
+    }
+
+    SUBCASE("case sensitive indicator mismatch") {
+        CHECK(extract_cpu_frequency("CPU freq: 240 MHz") == 0.0F);
+        CHECK(extract_cpu_frequency("CPU FREQ: 240 MHz") == 0.0F);
+    }
+
+    SUBCASE("indicator without colon") {
+        CHECK(extract_cpu_frequency("CPU Freq 240 MHz") == 0.0F);
+    }
+
+    SUBCASE("colon occurs only before indicator") {
+        CHECK(extract_cpu_frequency("Header: CPU Freq 240 MHz") == 0.0F);
+    }
+}
+
+TEST_CASE("extract_cpu_frequency invalid or non-positive values") {
+    using esp32_elt12k::device_string::extract_cpu_frequency;
+
+    SUBCASE("non-numeric string after colon") {
+        CHECK(extract_cpu_frequency("CPU Freq: invalid") == 0.0F);
+        CHECK(extract_cpu_frequency("CPU Freq: N/A MHz") == 0.0F);
+    }
+
+    SUBCASE("empty after colon") {
+        CHECK(extract_cpu_frequency("CPU Freq:") == 0.0F);
+    }
+
+    SUBCASE("only whitespace after colon") {
+        CHECK(extract_cpu_frequency("CPU Freq:   \t  ") == 0.0F);
+    }
+
+    SUBCASE("zero frequency") {
+        CHECK(extract_cpu_frequency("CPU Freq: 0 MHz") == 0.0F);
+        CHECK(extract_cpu_frequency("CPU Freq: 0.0 MHz") == 0.0F);
+    }
+
+    SUBCASE("negative frequency") {
+        CHECK(extract_cpu_frequency("CPU Freq: -160 MHz") == 0.0F);
+    }
+}

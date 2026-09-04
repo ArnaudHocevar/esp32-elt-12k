@@ -17,6 +17,26 @@ namespace esp32_elt12k::device_string {
         }
     }
 
+    auto extract_cpu_frequency(const std::string_view raw) -> float {
+        constexpr std::string_view freq_indicator = "Freq";
+        if (const auto freq_pos = raw.find(freq_indicator); freq_pos != std::string_view::npos) {
+            if (const auto colon_pos = raw.find(':', freq_pos); colon_pos != std::string_view::npos) {
+                auto freq_view = raw.substr(colon_pos + 1);
+                if (const auto num_start = freq_view.find_first_not_of(" \t");
+                    num_start != std::string_view::npos) {
+                    freq_view = freq_view.substr(num_start);
+                    float freq_val{0.0F};
+                    const auto [ptr, ec] = std::from_chars(freq_view.data(), freq_view.data() + freq_view.size(),
+                                                           freq_val);
+                    if (ec == std::errc{} && freq_val > 0.0F) {
+                        return freq_val;
+                    }
+                }
+            }
+        }
+        return 0.0F;
+    }
+
     auto parse_device_string(const std::string_view raw) -> ParsedDeviceDetails {
         ParsedDeviceDetails info{};
         if (raw.empty()) {
@@ -46,25 +66,7 @@ namespace esp32_elt12k::device_string {
             info.board_device = parts[1];
             info.framework_version = parts[4];
             info.valid = true;
-
-            constexpr std::string_view freq_indicator = "Freq";
-            const auto freq_pos = raw.find(freq_indicator);
-            if (freq_pos != std::string_view::npos) {
-                const auto colon_pos = raw.find(':', freq_pos);
-                if (colon_pos != std::string_view::npos) {
-                    auto freq_view = raw.substr(colon_pos + 1);
-                    const auto num_start = freq_view.find_first_not_of(" \t");
-                    if (num_start != std::string_view::npos) {
-                        freq_view = freq_view.substr(num_start);
-                        float freq_val{0.0F};
-                        const auto [ptr, ec] = std::from_chars(freq_view.data(), freq_view.data() + freq_view.size(),
-                                                               freq_val);
-                        if (ec == std::errc{} && freq_val > 0.0F) {
-                            info.cpu_freq = freq_val;
-                        }
-                    }
-                }
-            }
+            info.cpu_freq = extract_cpu_frequency(raw);
         }
 
         return info;
