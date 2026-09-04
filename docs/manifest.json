@@ -1,6 +1,6 @@
 {
   "name": "esp32-elt-12k",
-  "version": "2026.7.4",
+  "version": "2026.8.2",
   "builds": [
     {
       "chipFamily": "ESP32-C6",
