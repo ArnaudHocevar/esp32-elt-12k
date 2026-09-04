@@ -6,6 +6,7 @@ packages:
   - !include modbus_controller.yaml
   - !include modbus_sensors_elt12k.yaml
   - !include webserver.yaml
+  - !include worker.yaml
 
 esphome:
   name: esp32-elt-12k
