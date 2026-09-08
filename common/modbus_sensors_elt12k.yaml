@@ -143,6 +143,7 @@ sensor:
     address: 40081
     register_type: holding
     value_type: U_WORD
+    id: battery_charge
     name: "battery_charge"
     unit_of_measurement: "%"
     device_class: battery
@@ -467,6 +468,7 @@ sensor:
     address: 40153
     register_type: holding
     value_type: S_WORD
+    id: grid_power_l1
     name: "grid_power_l1"
     icon: mdi:transmission-tower
     unit_of_measurement: "W"
@@ -484,6 +486,7 @@ sensor:
     address: 40154
     register_type: holding
     value_type: S_WORD
+    id: grid_power_l2
     name: "grid_power_l2"
     icon: mdi:transmission-tower
     unit_of_measurement: "W"
@@ -501,6 +504,7 @@ sensor:
     address: 40155
     register_type: holding
     value_type: S_WORD
+    id: grid_power_l3
     name: "grid_power_l3"
     icon: mdi:transmission-tower
     unit_of_measurement: "W"
@@ -551,6 +555,7 @@ number:
     address: 40079
     register_type: holding
     value_type: U_WORD
+    id: battery_charge_limit
     name: "battery_charge_limit"
     unit_of_measurement: "%"
     device_class: battery
@@ -570,6 +575,7 @@ number:
     address: 40080
     register_type: holding
     value_type: U_WORD
+    id: battery_discharge_limit
     name: "battery_discharge_limit"
     unit_of_measurement: "%"
     device_class: battery
@@ -581,6 +587,24 @@ number:
     # Careful, values are inverted due to negative exponent
     lambda: "return x * id(mult_SoC);"
     write_lambda: "return x * id(div_SoC);"
+    web_server:
+      sorting_group_id: tunables
+
+  - platform: modbus_controller
+    modbus_controller_id: elt12k_modbus
+    address: 40183
+    register_type: holding
+    value_type: S_WORD
+    id: system_power
+    name: "system_power"
+    unit_of_measurement: "W"
+    device_class: power
+    step: 1
+    min_value: -12000.0  # Even if the ELT-12K can pull 18kVA in peak mode, we should stay within the safety factor
+    max_value: 12000.0
+    icon: mdi:flash
+    lambda: "return x * id(mult_W);"
+    write_lambda: "return x * id(div_W);"
     web_server:
       sorting_group_id: tunables
 

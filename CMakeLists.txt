@@ -5,21 +5,23 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# 1. Look for the hidden ESPHome compilation directory where esphome.h lives
-# (Change "modbus-smart-poller" to match the exact 'name' inside your YAML)
-set(ESPHOME_BUILD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/.esphome/build/esp32-elt-12k/src")
+set(ESPHOME_BUILD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/.esphome/build/esp32-elt-12k/components")
 
-# 2. Add the path to the compiler search tree
 include_directories(include ${ESPHOME_BUILD_DIR})
+include_directories(components/device_string)
 
-# 3. Unit test target
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options(--coverage)
+    add_link_options(--coverage)
+endif()
+
 enable_testing()
 find_package(doctest REQUIRED)
 include(doctest)
 add_executable(test_device_string
         tests/test_device_string.cpp
-    src/device_string.cpp
-    include/device_string.h
+    components/device_string/device_string_parser.cpp
+    components/device_string/device_string_parser.h
 )
 target_link_libraries(test_device_string PRIVATE doctest::doctest)
 doctest_discover_tests(test_device_string)
