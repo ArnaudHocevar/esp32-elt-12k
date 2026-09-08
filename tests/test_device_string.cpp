@@ -1,15 +1,15 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest/doctest.h>
 
-#include "device_string.h"
+#include "device_string_parser.h"
 
 #include <string_view>
 
 TEST_CASE("parse ESP32-C6 debug string") {
     constexpr std::string_view raw =
-        "2026.8.2|Chip: ESP32-C6 Features:BLE, 2.4GHz WiFi, Other:0x40 Cores:1 Revision:0|CPU Frequency: 160 MHz|"
-        "Framework: ESP-IDF|ESP-IDF: v5.5.5|EFuse MAC: 40:4C:CA:57:FD:98|Reset: Reboot request from esphome.ota|"
-        "Wakeup: undefined";
+            "2026.8.2|Chip: ESP32-C6 Features:BLE, 2.4GHz WiFi, Other:0x40 Cores:1 Revision:0|CPU Frequency: 160 MHz|"
+            "Framework: ESP-IDF|ESP-IDF: v5.5.5|EFuse MAC: 40:4C:CA:57:FD:98|Reset: Reboot request from esphome.ota|"
+            "Wakeup: undefined";
 
     const auto info = esp32_elt12k::device_string::parse_device_string(raw);
 
@@ -34,7 +34,7 @@ TEST_CASE("empty and invalid input strings") {
 
 TEST_CASE("frequency variant and trimming") {
     constexpr std::string_view raw =
-        " 2024.12.0 | esp32-s3-devkitc-1 | CPU Freq: 240 MHz | Framework: arduino | 2.0.14 ";
+            " 2024.12.0 | esp32-s3-devkitc-1 | CPU Freq: 240 MHz | Framework: arduino | 2.0.14 ";
 
     const auto info = esp32_elt12k::device_string::parse_device_string(raw);
 
@@ -70,7 +70,7 @@ TEST_CASE("extract_cpu_frequency valid formats") {
 
     SUBCASE("embedded in longer debug string with earlier colons") {
         constexpr std::string_view raw =
-            "Chip: ESP32-C6 Revision:0 | CPU Frequency: 160 MHz | Framework: ESP-IDF";
+                "Chip: ESP32-C6 Revision:0 | CPU Frequency: 160 MHz | Framework: ESP-IDF";
         CHECK(extract_cpu_frequency(raw) == doctest::Approx(160.0F).epsilon(0.001));
     }
 }

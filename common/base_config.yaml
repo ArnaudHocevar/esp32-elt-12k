@@ -22,6 +22,10 @@ globals:
     type: float
     initial_value: "powf(10.0f, ${SCALING_FACTOR_W})"
     restore_value: false
+  - id: div_W
+    type: float
+    initial_value: "1.0f / powf(10.0f, ${SCALING_FACTOR_W})"
+    restore_value: false
   - id: mult_SoC
     type: float
     initial_value: "powf(10.0f, ${SCALING_FACTOR_SoC})"

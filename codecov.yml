@@ -1,0 +1,21 @@
+---
+coverage:
+  status:
+    # 1. 'project' checks the overall repository health
+    project:
+      default:
+        target: 80%
+        threshold: 5%
+        if_ci_failed: error
+
+    # 2. 'patch' checks ONLY the lines of code added/modified in the PR
+    patch:
+      default:
+        target: 80%
+        threshold: 3%
+
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: false
+  show_carryforward_flags: false
