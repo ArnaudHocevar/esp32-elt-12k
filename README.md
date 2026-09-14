@@ -55,7 +55,7 @@ Either clone the project and copy to ESPHome, or use the one-click installation 
 - [X] Implement cleaner handling of enumeration and bitmasks
 - [ ] Support for dynamic exponent detection
 - [X] Multi-speed polling
-- [ ] Support for custom modes (self-consumption, peak-shaving, etc.)
+- [X] Support for custom modes (self-consumption, peak-shaving, etc.)
 - [ ] Simple reporting UI
 - [ ] MQTT support
 - [ ] WebUI configuration (custom modes, MQTT, polling frequency, etc)

@@ -32,9 +32,9 @@
 | 40147   | Daily_Discharge_Energy   | uint16     | 1 byte   | Energy_SF(*0.01) | kWh  |                                                                                          |
 | 40148   | Charge_Energy            | uint32     | 2 bytes  | Energy_SF(*0.01) | kWh  |                                                                                          |
 | 40150   | Discharge_Energy         | uint32     | 2 bytes  | Energy_SF(*0.01) | kWh  |                                                                                          |
-| 40153   | Grid_Power_A             | int16      | 1 byte   | W_SF(*1)         | W    | A-phase grid side power (+:Grid discharge. -:Grid countercurrent)                        |
-| 40154   | Grid_Power_B             | int16      | 1 byte   | W_SF(*1)         | W    | B-phase grid side power (+:Grid discharge. -:Grid countercurrent)                        |
-| 40155   | Grid_Power_C             | int16      | 1 byte   | W_SF(*1)         | W    | C-phase grid side power (+:Grid discharge. -:Grid countercurrent)                        |
+| 40153   | Grid_Power_A             | int16      | 1 byte   | W_SF(*1)         | W    | A-phase grid movement (+:import. -:export)                                                |
+| 40154   | Grid_Power_B             | int16      | 1 byte   | W_SF(*1)         | W    | B-phase grid movement (+:import. -:export)                                                |
+| 40155   | Grid_Power_C             | int16      | 1 byte   | W_SF(*1)         | W    | C-phase grid movement (+:import. -:export)                                                |
 | 40156   | Battery_temp             | int16      | 1 byte   | Temp_SF(*0.1)    | °C   |                                                                                          |
 | 40157   | PCS_temp                 | int16      | 1 byte   | Temp_SF(*0.1)    | °C   |                                                                                          |
-
+| 40183   | System power command     | int16      | 1 byte   | W_SF(*1)         | W    | Signed PCS power command. Positive charges; negative discharges.                           |

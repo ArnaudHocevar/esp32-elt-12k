@@ -1,4 +1,4 @@
-#include "device_string.h"
+#include "device_string_parser.h"
 
 #include <array>
 #include <charconv>
@@ -27,7 +27,7 @@ namespace esp32_elt12k::device_string {
             constexpr std::string_view revision_key = "Revision:";
             constexpr std::string_view cores_key = "Cores:";
 
-            if (board_info.starts_with(chip_prefix)) {
+            if (!board_info.starts_with(chip_prefix)) {
                 return std::string{board_info};
             }
 
@@ -41,8 +41,7 @@ namespace esp32_elt12k::device_string {
                 if (key_pos == std::string_view::npos) {
                     return {};
                 }
-                auto value = board_info.substr(key_pos + key.size());
-                value = trim(value);
+                auto value = trim(board_info.substr(key_pos + key.size()));
                 const auto end = value.find_first_not_of("0123456789");
                 return (end == std::string_view::npos) ? value : value.substr(0, end);
             };
@@ -53,17 +52,16 @@ namespace esp32_elt12k::device_string {
                 return std::string{board_info};
             }
 
-            return std::string{chip_name} + " (rev: " + std::string{revision} + ", " + std::string{cores} + " CPU)";
+            return std::string{chip_name} + " (" + std::string{cores} + " core(s), rev " + std::string{revision} + ")";
         }
-    }
+    } // namespace
 
     auto extract_cpu_frequency(const std::string_view raw) -> float {
         constexpr std::string_view freq_indicator = "Freq";
         if (const auto freq_pos = raw.find(freq_indicator); freq_pos != std::string_view::npos) {
             if (const auto colon_pos = raw.find(':', freq_pos); colon_pos != std::string_view::npos) {
                 auto freq_view = raw.substr(colon_pos + 1);
-                if (const auto num_start = freq_view.find_first_not_of(" \t");
-                    num_start != std::string_view::npos) {
+                if (const auto num_start = freq_view.find_first_not_of(" \t"); num_start != std::string_view::npos) {
                     freq_view = freq_view.substr(num_start);
                     float freq_val{0.0F};
                     const auto [ptr, ec] = std::from_chars(freq_view.data(), freq_view.data() + freq_view.size(),
@@ -86,13 +84,9 @@ namespace esp32_elt12k::device_string {
         std::array<std::string_view, 5> parts{};
         std::size_t count = 0;
         std::size_t start = 0;
-
         while (count < parts.size()) {
             const auto end = raw.find('|', start);
-            const auto token = (end == std::string_view::npos)
-                                   ? raw.substr(start)
-                                   : raw.substr(start, end - start);
-
+            const auto token = (end == std::string_view::npos) ? raw.substr(start) : raw.substr(start, end - start);
             parts[count] = trim(token);
             ++count;
             if (end == std::string_view::npos) {
@@ -101,14 +95,15 @@ namespace esp32_elt12k::device_string {
             start = end + 1;
         }
 
-        if (count >= parts.size()) {
-            info.esphome_version = parts[0];
-            info.board_device = parse_board_device(parts[1]);
-            info.framework_version = parts[4];
-            info.cpu_freq = extract_cpu_frequency(raw);
-            info.valid = true;
+        if (count < 5 || parts[0].empty() || parts[1].empty() || parts[4].empty()) {
+            return info;
         }
 
+        info.esphome_version = parts[0];
+        info.board_device = parse_board_device(parts[1]);
+        info.framework_version = parts[4];
+        info.cpu_freq = extract_cpu_frequency(raw);
+        info.valid = true;
         return info;
     }
-}
+} // namespace esp32_elt12k::device_string

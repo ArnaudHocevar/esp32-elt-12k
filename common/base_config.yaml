@@ -1,9 +1,9 @@
 ---
 substitutions:
   MODBUS_SEND_DELAY: 100ms
-  MODBUS_TICK_INTERVAL: 10000ms
-  MODBUS_SKIP_TICKS_IMMUTABLE: 359  # Collect static data every 360 ticks (1 hour)
-  MODBUS_SKIP_TICKS_SLOW: 5  # Collect slow-varying data every 6 ticks (1 min)
+  MODBUS_TICK_INTERVAL: 1000ms
+  MODBUS_SKIP_TICKS_IMMUTABLE: 3599  # Collect static data every 360 ticks (1 hour)
+  MODBUS_SKIP_TICKS_SLOW: 6  # Collect slow-varying data every 6 ticks (1 min)
   MODBUS_NO_VARIATION_HEARTBEAT: 60s
   SCALING_FACTOR_WHRtg: -2
   SCALING_FACTOR_W: 0
@@ -21,6 +21,10 @@ globals:
   - id: mult_W
     type: float
     initial_value: "powf(10.0f, ${SCALING_FACTOR_W})"
+    restore_value: false
+  - id: div_W
+    type: float
+    initial_value: "1.0f / powf(10.0f, ${SCALING_FACTOR_W})"
     restore_value: false
   - id: mult_SoC
     type: float

@@ -13,5 +13,6 @@ namespace esp32_elt12k::device_string {
     };
 
     [[nodiscard]] auto extract_cpu_frequency(std::string_view raw) -> float;
+
     [[nodiscard]] auto parse_device_string(std::string_view raw) -> ParsedDeviceDetails;
-}
+} // namespace esp32_elt12k::device_string

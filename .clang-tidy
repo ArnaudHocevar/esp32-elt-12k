@@ -3,11 +3,43 @@ Checks: '-*,
   bugprone-*,
   cert-*,
   modernize-*,
-  readability-this--member-variable,
+  bugprone-string-integer-assignment,
+  performance-*,
+  google-*,
+  -google-runtime-references,
+  cppcoreguidelines-*,
+  -cppcoreguidelines-special-member-functions,
+  -cppcoreguidelines-pro-bounds-*,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-pro-type-vararg,
+  readability-make-member-function-const,
+  readability-uniqueptr-delete-release,
+  readability-this-member-variable,
   readability-redundant-smartptr-get,
-  performance-*'
+  readability-const-return-type,
+  readability-container-contains,
+  readability-redundant-declaration,
+  readability-static-definition-in-anonymous-namespace,
+  clang-analyzer-*'
+
 WarningsAsErrors: ''
-HeaderFilterRegex: '.*'
+
+HeaderFilterRegex: '^(components|tests)/.*\.(cpp|h)$'
+
 CheckOptions:
+  # Enforce Google Style for Classes
   - key:             readability-identifier-naming.ClassCase
     value:           CamelCase
+  # Enforce snake_case for standard functions (Google/ESPHome standard)
+  - key:             readability-identifier-naming.FunctionCase
+    value:           snake_case
+  # Enforce snake_case for member variables (e.g., sensor_value_) with a trailing underscore
+  - key:             readability-identifier-naming.MemberCase
+    value:           snake_case
+  - key:             readability-identifier-naming.MemberSuffix
+    value:           _
+  # Enforce UPPER_CASE for compile-time constants or macros
+  - key:             readability-identifier-naming.ConstexprVariableCase
+    value:           UPPER_CASE
+  - key:             readability-identifier-naming.GlobalConstantCase
+    value:           UPPER_CASE

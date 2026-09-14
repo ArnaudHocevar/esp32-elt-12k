@@ -12,10 +12,7 @@ uart:
 modbus:
   id: modbus_bus
   uart_id: modbus_uart
-  flow_control_pin: ${GPIO_FC}
   role: client
-  send_wait_time: ${MODBUS_SEND_DELAY}
-  turnaround_time: 200ms
 
 select:
   - id: change_modbus_baud_rate
@@ -42,7 +39,7 @@ select:
           tag: "modbus"
           level: DEBUG
           format: "Changing Modbus baud rate from %u to %u"
-          args: ['id(modbus_uart).get_baud_rate()', 'stoi(x)']
+          args: ['(unsigned int)id(modbus_uart).get_baud_rate()', '(unsigned int)stoi(x)']
       - lambda: |-
           id(modbus_uart).flush();
           uint32_t new_baud_rate = stoi(x);
