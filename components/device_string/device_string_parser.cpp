@@ -27,7 +27,7 @@ namespace esp32_elt12k::device_string {
             constexpr std::string_view revision_key = "Revision:";
             constexpr std::string_view cores_key = "Cores:";
 
-            if (board_info.starts_with(chip_prefix)) {
+            if (!board_info.starts_with(chip_prefix)) {
                 return std::string{board_info};
             }
 
@@ -52,7 +52,7 @@ namespace esp32_elt12k::device_string {
                 return std::string{board_info};
             }
 
-            return std::string{chip_name} + " (rev: " + std::string{revision} + ", " + std::string{cores} + " CPU)";
+            return std::string{chip_name} + " (" + std::string{cores} + " core(s), rev " + std::string{revision} + ")";
         }
     } // namespace
 

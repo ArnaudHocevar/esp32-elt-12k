@@ -15,7 +15,7 @@ TEST_CASE("parse ESP32-C6 debug string") {
 
     CHECK(info.valid);
     CHECK(info.esphome_version == "2026.8.2");
-    CHECK(info.board_device == "Chip: ESP32-C6 Features:BLE, 2.4GHz WiFi, Other:0x40 Cores:1 Revision:0");
+    CHECK(info.board_device == "ESP32-C6 (1 core(s), rev 0)");
     CHECK(info.framework_version == "ESP-IDF: v5.5.5");
     CHECK(info.cpu_freq == doctest::Approx(160.0F).epsilon(0.001));
 }
