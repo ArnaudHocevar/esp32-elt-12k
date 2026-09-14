@@ -95,13 +95,15 @@ namespace esp32_elt12k::device_string {
             start = end + 1;
         }
 
-        if (count >= parts.size()) {
-            info.esphome_version = parts[0];
-            info.board_device = parse_board_device(parts[1]);
-            info.framework_version = parts[4];
-            info.cpu_freq = extract_cpu_frequency(raw);
-            info.valid = true;
+        if (count < 5 || parts[0].empty() || parts[1].empty() || parts[4].empty()) {
+            return info;
         }
+
+        info.esphome_version = parts[0];
+        info.board_device = parse_board_device(parts[1]);
+        info.framework_version = parts[4];
+        info.cpu_freq = extract_cpu_frequency(raw);
+        info.valid = true;
         return info;
     }
 } // namespace esp32_elt12k::device_string

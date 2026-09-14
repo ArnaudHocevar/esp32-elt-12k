@@ -74,7 +74,7 @@ sensor:
     device_class: energy
     icon: mdi:battery
     accuracy_decimals: 2
-    force_new_range: true
+#    force_new_range: true
     skip_updates: ${MODBUS_SKIP_TICKS_IMMUTABLE}
     lambda: "return x * id(mult_WHRtg);"
     web_server:
@@ -147,6 +147,7 @@ sensor:
     name: "battery_charge"
     unit_of_measurement: "%"
     device_class: battery
+    state_class: measurement
     accuracy_decimals: 1
     icon: mdi:battery-charging-medium
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
@@ -221,7 +222,7 @@ sensor:
     register_type: holding
     value_type: U_WORD
     name: "battery_bus_voltage"
-    force_new_range: true
+#    force_new_range: true
     icon: mdi:lightning-bolt
     unit_of_measurement: "V"
     device_class: voltage
@@ -261,6 +262,7 @@ sensor:
     icon: mdi:battery-charging
     unit_of_measurement: "W"
     device_class: power
+    state_class: measurement
     lambda: "return x * id(mult_W);"
     filters:
       - or:
@@ -278,6 +280,7 @@ sensor:
     icon: mdi:battery-high
     unit_of_measurement: "V"
     device_class: voltage
+    state_class: measurement
     accuracy_decimals: 1
     lambda: "return x * id(mult_V);"
     filters:
@@ -296,6 +299,7 @@ sensor:
     icon: mdi:flash
     unit_of_measurement: "W"
     device_class: power
+    state_class: measurement
     lambda: "return x * id(mult_W);"
     filters:
       - or:
@@ -313,6 +317,7 @@ sensor:
     icon: mdi:flash
     unit_of_measurement: "W"
     device_class: power
+    state_class: measurement
     lambda: "return x * id(mult_W);"
     filters:
       - or:
@@ -330,6 +335,7 @@ sensor:
     icon: mdi:flash
     unit_of_measurement: "W"
     device_class: power
+    state_class: measurement
     lambda: "return x * id(mult_W);"
     filters:
       - or:
@@ -347,6 +353,7 @@ sensor:
     icon: mdi:flash-outline
     unit_of_measurement: "Var"
     device_class: reactive_power
+    state_class: measurement
     lambda: "return x * id(mult_W);"
     filters:
       - or:
@@ -364,6 +371,7 @@ sensor:
     icon: mdi:flash-outline
     unit_of_measurement: "Var"
     device_class: reactive_power
+    state_class: measurement
     lambda: "return x * id(mult_W);"
     filters:
       - or:
@@ -381,6 +389,7 @@ sensor:
     icon: mdi:flash-outline
     unit_of_measurement: "Var"
     device_class: reactive_power
+    state_class: measurement
     lambda: "return x * id(mult_W);"
     filters:
       - or:
@@ -399,6 +408,7 @@ sensor:
     unit_of_measurement: "kWh"
     device_class: energy
     accuracy_decimals: 2
+    state_class: total_increasing
     lambda: "return x * id(mult_Energy);"
     filters:
       - or:
@@ -416,6 +426,7 @@ sensor:
     icon: mdi:battery-arrow-down
     unit_of_measurement: "kWh"
     device_class: energy
+    state_class: total_increasing
     accuracy_decimals: 2
     lambda: "return x * id(mult_Energy);"
     filters:
@@ -473,6 +484,7 @@ sensor:
     icon: mdi:transmission-tower
     unit_of_measurement: "W"
     device_class: power
+    state_class: measurement
     lambda: "return x * id(mult_W);"
     filters:
       - or:
@@ -491,6 +503,7 @@ sensor:
     icon: mdi:transmission-tower
     unit_of_measurement: "W"
     device_class: power
+    state_class: measurement
     lambda: "return x * id(mult_W);"
     filters:
       - or:
@@ -509,6 +522,7 @@ sensor:
     icon: mdi:transmission-tower
     unit_of_measurement: "W"
     device_class: power
+    state_class: measurement
     lambda: "return x * id(mult_W);"
     filters:
       - or:
@@ -528,7 +542,7 @@ sensor:
     unit_of_measurement: "C"
     device_class: temperature
     accuracy_decimals: 1
-    force_new_range: true
+#    force_new_range: true
     skip_updates: ${MODBUS_SKIP_TICKS_SLOW}
     lambda: "return x * id(mult_Temp);"
     web_server:

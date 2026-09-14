@@ -8,6 +8,7 @@ namespace esphome::device_string {
     }
 
     void DeviceStringComponent::setup() {
+        this->has_parsed_ = false;
         source_->add_on_state_callback([this](const std::string &state) { this->update(state); });
         if (source_->has_state()) {
             update(source_->state);
@@ -23,10 +24,8 @@ namespace esphome::device_string {
         LOG_SENSOR("  ", "CPU Frequency", this->cpu_frequency_);
     }
 
-    void DeviceStringComponent::update(const std::string &raw) const {
-        // parse only once (successfully)
-        static bool has_parsed = false;
-        if (has_parsed) {
+    void DeviceStringComponent::update(const std::string &raw) {
+        if (this->has_parsed_) {
             return;
         }
 
@@ -40,10 +39,10 @@ namespace esphome::device_string {
         esphome_version_->publish_state(esphome_version);
         board_device_->publish_state(board_device);
         framework_version_->publish_state(framework_version);
-        if (cpu_freq > 0.0F) {
+        if (cpu_freq > 0.0F && cpu_frequency_ != nullptr) {
             cpu_frequency_->publish_state(cpu_freq);
         }
 
-        has_parsed = true;
+        this->has_parsed_ = true;
     }
 } // namespace esphome::device_string

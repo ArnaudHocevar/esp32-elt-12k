@@ -9,3 +9,9 @@ esp32:
   variant: esp32c6
   framework:
     type: esp-idf
+
+external_components:
+  - source:
+      type: local
+      path: components
+    components: [heartbeat]

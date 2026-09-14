@@ -9,6 +9,7 @@ set(ESPHOME_BUILD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/.esphome/build/esp32-elt-12k/
 
 include_directories(include ${ESPHOME_BUILD_DIR})
 include_directories(components/device_string)
+include_directories(components/heartbeat)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(--coverage)
@@ -18,6 +19,7 @@ endif()
 enable_testing()
 find_package(doctest REQUIRED)
 include(doctest)
+
 add_executable(test_device_string
         tests/test_device_string.cpp
     components/device_string/device_string_parser.cpp
@@ -25,3 +27,11 @@ add_executable(test_device_string
 )
 target_link_libraries(test_device_string PRIVATE doctest::doctest)
 doctest_discover_tests(test_device_string)
+
+add_executable(test_heartbeat_control
+        tests/test_heartbeat_control.cpp
+    components/heartbeat/heartbeat_control.cpp
+    components/heartbeat/heartbeat_control.h
+)
+target_link_libraries(test_heartbeat_control PRIVATE doctest::doctest)
+doctest_discover_tests(test_heartbeat_control)

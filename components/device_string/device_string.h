@@ -21,13 +21,18 @@ namespace esphome::device_string {
 
         void dump_config() override;
 
+       [[nodiscard]] float get_setup_priority() const override {
+            return setup_priority::LATE - 1.0f;
+        }
+
     private:
-        void update(const std::string &raw) const;
+        void update(const std::string &raw);
 
         text_sensor::TextSensor *source_{nullptr};
         text_sensor::TextSensor *esphome_version_{nullptr};
         text_sensor::TextSensor *board_device_{nullptr};
         text_sensor::TextSensor *framework_version_{nullptr};
         sensor::Sensor *cpu_frequency_{nullptr};
+        bool has_parsed_{false};
     };
 } // namespace esphome::device_string
