@@ -131,6 +131,8 @@ jobs:
           ctest --test-dir build --output-junit test-results/junit.xml --output-on-failure
 
       - name: Capture Coverage Metrics
+        env:
+          LCOV_OPTS: "--config-file ${{ github.workspace }}/.lcovrc"
         run: |
           lcov --directory build --capture --output-file build/coverage.info
           lcov --remove build/coverage.info '/usr/*' '*/tests/*' '*/.esphome/*' --output-file build/coverage.info
