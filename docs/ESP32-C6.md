@@ -1,11 +1,13 @@
-# ESP32-S6 specificities
+# ESP32-C6 RS485 interface notes
 
-This page describes the pinout when using a breadboard to connect a MAX485S to an ESP32-C6
+This page describes two common RS485 transceiver module wiring options for an ESP32-C6.
 
-Note that there is no opto-isolation for *most* of the cheap MAX485S, therefore damage could occur to either the PCS or the ESP32 board.
+## MAX485 breakout module (DE/RE controlled)
+Many low-cost MAX485 breakout modules are not galvanically isolated. In that case, wiring or surge faults on the RS485 side can propagate to the ESP32 and to the PCS interface.
 
-As the ESP32 uses 3.3v and the ELT-12K uses 5V TTL a voltage divider is required to safely connect the two. The 5V can be taken from the 5V of the ESP32 or a common bus, depending on how it is being powered.
+On these modules, the UART-side logic level depends on the module implementation and supply rail. Because ESP32 GPIO is 3.3 V logic, ensure the RX path seen by the ESP32 is 3.3 V compatible. DE and /RE are connected together and controlled from one ESP32 GPIO to switch between transmit and receive.
 
+```
        ESP32                                        MAX485
     +---------+                                  +---------+
     |         |                                  |         |
@@ -26,8 +28,38 @@ As the ESP32 uses 3.3v and the ELT-12K uses 5V TTL a voltage divider is required
     +---------+    |                             +---------+
                    |                                  |
     ---------------+----------------------------------+----- COMMON GND
+```
 
-Pinout:
-- GPIO22: TXD1
-- GPIO23: RXD1
-- GPIO21: EN
+Suggested ESP32 UART mapping:
+- GPIO22: UART TXD
+- GPIO23: UART RXD
+- GPIO21: Direction control (DE + /RE)
+
+## Waveshare opto-isolated RS485 module (auto-direction)
+
+The Waveshare opto-isolated module is wired differently:
+- DE/RE are handled internally, so no external direction-control GPIO is required.
+- Its MCU-side UART interface is intended for direct controller connection on supported variants; verify the exact board revision, pin labels, and supply requirements before wiring.
+- The module power rail can typically be either **3.3 V** or **5 V** (board-dependent), which simplifies integration with ESP32 designs.
+- UART wiring is crossed on this board: **ESP32 TX connects to module RX**, and **ESP32 RX connects to module TX**.
+
+```
+       ESP32                                Waveshare RS485 (opto-isolated)
+    +---------+                             +------------------------------+
+    |         |                             |                              |
+    |  GPIO22 |---------------------------->| RXD                          |
+    |   (TX)  |                             |                              |
+    |         |                             |                              |
+    |  GPIO23 |<----------------------------| TXD                          |
+    |   (RX)  |                             |                              |
+    |         |                             |                              |
+    |   3V3   |---------------------------->| VCC (or 5V per board spec)   |
+    |   GND   |---------------------------->| GND                          |
+    +---------+                             +------------------------------+
+```
+
+## Cabling recommendation (applies to both module types)
+
+These recommendations apply to both MAX485 and Waveshare modules:
+- Always use a twisted pair for RS485 **A/B**.
+- Keep ESP32-to-transceiver UART jumpers short. If they are longer than a few centimeters, route them together (twisting helps in noisy environments) to reduce coupling and edge ringing.
