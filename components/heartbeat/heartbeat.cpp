@@ -14,10 +14,6 @@ namespace esphome::heartbeat {
         this->phase_ = 0;
         this->badge_throttle_ = 0;
 
-        if (this->heartbeat_led_ != nullptr) {
-            auto call = this->heartbeat_led_->turn_off();
-            call.perform();
-        }
         if (this->heartbeat_status_ != nullptr) {
             this->heartbeat_status_->publish_state("initializing");
         }
@@ -34,7 +30,7 @@ namespace esphome::heartbeat {
         ESP_LOGCONFIG(TAG, "  Work mode selector: %s",
                       this->select_work_mode_ != nullptr ? "configured" : "missing");
         if (this->heartbeat_led_ != nullptr) {
-            ESP_LOGCONFIG(TAG, "  Light state: configured");
+            ESP_LOGCONFIG(TAG, "  Heartbeat LED: configured");
         }
         if (this->heartbeat_status_ != nullptr) {
             ESP_LOGCONFIG(TAG, "  Text sensor: configured");
@@ -83,10 +79,10 @@ namespace esphome::heartbeat {
         const std::string final_status = HeartbeatControl::get_status_label(connection_status, mode);
 
         if (this->heartbeat_led_ != nullptr) {
-            auto hb_led_call = heartbeat_led_->turn_on();
-            hb_led_call.set_rgb(r * brightness_modifier, g * brightness_modifier, b * brightness_modifier);
-            hb_led_call.set_transition_length(150);
-            hb_led_call.perform();
+            auto call = this->heartbeat_led_->turn_on();
+            call.set_rgb(r * brightness_modifier, g * brightness_modifier, b * brightness_modifier);
+            call.set_transition_length(150);
+            call.perform();
         }
 
         if (this->heartbeat_status_ != nullptr && this->badge_throttle_++ >= 5) {
